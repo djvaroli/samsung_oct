@@ -14,6 +14,7 @@ python3 -m venv venv && source venv/bin/activate
 Install all the necessary dependencies
 ```bash
 pip3 install -r requirements.txt
+pip3 install -e utilities/ # this will install the  custom utility functions
 ```
 
 You should now be set to run/modify code in this repository. 

@@ -129,14 +129,14 @@ class MachineLearningExperimentTracking(Callback):
         self.model_train_doc["epoch_train_times"] = self.epoch_train_times
 
     def on_train_end(self, logs=None):
-        self.model_train_doc['gcs_path'] = f"gs://{self.gcs_bucket_name}/{self.experiment_id}"
 
         if self.store_data_locally:
             logger.info(f"Storing model and training data locally in directory {self.experiment_id}")
-            self.__save_data_locally()
+            self.save_data_locally()
             return
 
         if self.store_data_in_gcs:
+            self.model_train_doc['gcs_path'] = f"gs://{self.gcs_bucket_name}/{self.experiment_id}"
             logger.info(f"Storing model and training data in GCS @ {self.model_train_doc['gcs_path']}")
             self.store_info_in_gcs()
             return

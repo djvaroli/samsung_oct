@@ -23,7 +23,6 @@ class MachineLearningExperimentTracking(Callback):
     """
     def __init__(
             self,
-            company: str,
             experiment_name: str,
             monitor: str = "val_accuracy",
             mode: str = "max",
@@ -44,7 +43,6 @@ class MachineLearningExperimentTracking(Callback):
         if not self.__are_gcp_credentials_set() and store_data_in_gcs:
             raise Exception("Looks like GOOGLE_ACCOUNT_CREDENTIALS are not set.")
 
-        self.company = company
         self.experiment_name = experiment_name
         self.monitor = monitor
         self.mode = mode

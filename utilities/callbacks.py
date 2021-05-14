@@ -58,7 +58,8 @@ class MachineLearningExperimentTracking(Callback):
                             "Consider adding one before starting to train the model.")
 
         self.experiment_id = self.__gen_experiment_id()
-        self.gcs_bucket = self.__get_gcs_bucket()
+        self.gcs_bucket = self.__get_gcs_bucket() if self.store_data_in_gcs else None
+
         self.model_train_doc = {}
         self.best_weights = None
         self.total_training_time = 0

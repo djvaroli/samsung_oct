@@ -132,4 +132,5 @@ dmypy.json
 .idea
 
 # large data files
-*_data/
+*_data
+*.zip

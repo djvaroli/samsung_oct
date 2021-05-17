@@ -1,0 +1,13 @@
+FROM python:3.8-slim-buster
+
+COPY ./opticot /opticot
+COPY requirements.txt requirements.txt
+COPY ./utilities /utilities
+
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install -r requirements.txt
+RUN python3 -m pip install utilities/
+
+EXPOSE $PORT
+
+RUN ["gunicorn", "opticot.main:app", "-w", "${FLASK_WORKERS}", "-b", "${HOST}:${PORT}"]

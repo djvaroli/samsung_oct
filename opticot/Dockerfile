@@ -11,5 +11,5 @@ RUN python3 -m pip install utilities/
 ENV FLASK_DEBUG=False
 EXPOSE 8003
 
-#RUN ["chmod", "+x", "app/docker-entrypoint.sh"]
+RUN ["chmod", "+x", "/opticot/entrypoint.sh"]
 ENTRYPOINT ["/opticot/entrypoint.sh"]

@@ -1,5 +1,11 @@
 version: "2"
 services:
+  opticot:
+    build:
+      context: ./
+      dockerfile: ./opticot/Dockerfile
+    ports:
+      - 8003:8003
   tensorflow-serving:
     image: tensorflow/serving
     ports:

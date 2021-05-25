@@ -1,6 +1,6 @@
 FROM python:3.8-slim-buster
 
-COPY ./opticot/ /opticot
+COPY ./molo/ /molo
 COPY ./requirements.txt requirements.txt
 COPY ./utilities /utilities
 
@@ -11,5 +11,5 @@ RUN python3 -m pip install utilities/
 ENV FLASK_DEBUG=False
 EXPOSE 8003
 
-RUN ["chmod", "+x", "/opticot/entrypoint.sh"]
-ENTRYPOINT ["/opticot/entrypoint.sh"]
+RUN ["chmod", "+x", "/molo/entrypoint.sh"]
+ENTRYPOINT ["/molo/entrypoint.sh"]

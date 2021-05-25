@@ -8,19 +8,22 @@ from tensorflow_serving.apis import predict_pb2, get_model_metadata_pb2, predict
 from tensorflow_serving.apis.model_pb2 import ModelSpec
 from google.protobuf.json_format import MessageToJson
 
+from utilities.route_decorators import status_code_decorator
 
 load_dotenv()
 app = Flask(__name__)
-MODEL_URI = "localhost:8500"
+MODEL_URI = "prediction-model:8500"
 
 
 @app.route("/", methods=['GET'])
+@status_code_decorator
 def home():
-    return "Welcome to OptiCoT!", 200
+    return "Welcome to Molo!"
 
 
-@app.route("/opticot/info/<model_name>", defaults={"model_name": "dense_net"}, methods=["GET"])
-def opticot_info(
+@app.route("/molo/info/<model_name>", defaults={"model_name": "dense_net"}, methods=["GET"])
+@status_code_decorator
+def molo_info(
         model_name: str
 ):
     channel = grpc.insecure_channel(MODEL_URI)
@@ -29,13 +32,14 @@ def opticot_info(
     request = get_model_metadata_pb2.GetModelMetadataRequest(model_spec=model_spec)
     request.metadata_field.append("signature_def")
 
-    result = stub.GetModelMetadata(request, 1.0)
+    result = stub.GetModelMetadata(request, 5.0)
     metadata = json.loads(MessageToJson(result))
 
     return metadata
 
 
-@app.route("/opticot/predict", methods=["GET"])
+@app.route("/molo/predict", methods=["GET"])
+@status_code_decorator
 def opticot_predict():
     return {"prediction": "some label"}
 
@@ -44,4 +48,5 @@ if __name__ == "__main__":
     app.run(
         host=os.environ.get("FLASK_HOST", "0.0.0.0"),
         port=os.environ.get("FLASK_PORT", 8003),
-        debug=os.environ.get("FLASK_DEBUG", True))
+        debug=os.environ.get("FLASK_DEBUG", True)
+    )

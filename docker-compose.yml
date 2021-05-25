@@ -1,12 +1,12 @@
 version: "2"
 services:
-  opticot:
+  molo:
     build:
       context: ./
-      dockerfile: ./opticot/Dockerfile
+      dockerfile: molo/Dockerfile
     ports:
       - 8003:8003
-  tensorflow-serving:
+  prediction-model:
     image: tensorflow/serving
     ports:
       - 8500:8500

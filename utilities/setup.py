@@ -15,7 +15,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
     ],
     install_requires=[
-        'ciso8601',
         'google-cloud-storage',
         'numpy',
         'simplejson'

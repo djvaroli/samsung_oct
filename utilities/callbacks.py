@@ -86,11 +86,10 @@ class MachineLearningExperimentTracking(Callback):
 
         self.model_train_doc = {
             "experiment_name": self.experiment_name,
-            "experiment_id": self.experiment_id,
+            "run_id": self.experiment_id,
             "date": dt.now().isoformat(),
             "monitor": self.monitor,
             "model_name": self.model.name,
-            "model_layers": self.get_friendly_layer_representations(),
             "model_input_shape": self.model.input_shape,
             "model_output_shape": self.model.output_shape,
             "optimizer": {**self.model.optimizer.get_config(), "class": str(self.model.optimizer.__class__)},

@@ -54,9 +54,7 @@ class MachineLearningExperimentTracking(Callback):
         self.store_data_locally = store_data_locally
 
         if self.experiment_description is None:
-            logging.warning("An experiment description is not mandatory, "
-                            "but it is helpful to briefly describe the experiment."
-                            "Consider adding one before starting to train the model.")
+            logging.warning("No experiment description was set")
 
         self.run_id = run_id if run_id else self.__gen_run_id()
         self.gcs_bucket = self.__get_gcs_bucket() if self.store_data_in_gcs else None

@@ -28,9 +28,9 @@ class MachineLearningExperimentTracking(Callback):
             mode: str = "max",
             save_best_weights: bool = True,
             model: Model = None,
-            gcs_bucket_name: str = "experiment-logs",
-            store_data_locally: bool = True,
-            store_data_in_gcs: bool = False,
+            gcs_bucket_name: str = "samsung-oct",
+            store_data_locally: bool = False,
+            store_data_in_gcs: bool = True,
             experiment_description: Optional[str] = None,
             **kwargs
     ):
@@ -57,7 +57,7 @@ class MachineLearningExperimentTracking(Callback):
                             "but it is helpful to briefly describe the experiment."
                             "Consider adding one before starting to train the model.")
 
-        self.experiment_id = self.__gen_experiment_id()
+        self.run_id = self.__gen_run_id()
         self.gcs_bucket = self.__get_gcs_bucket() if self.store_data_in_gcs else None
 
         self.model_train_doc = {}
@@ -86,7 +86,7 @@ class MachineLearningExperimentTracking(Callback):
 
         self.model_train_doc = {
             "experiment_name": self.experiment_name,
-            "run_id": self.experiment_id,
+            "run_id": self.run_id,
             "date": dt.now().isoformat(),
             "monitor": self.monitor,
             "model_name": self.model.name,
@@ -130,12 +130,12 @@ class MachineLearningExperimentTracking(Callback):
     def on_train_end(self, logs=None):
 
         if self.store_data_locally:
-            logger.info(f"Storing model and training data locally in directory {self.experiment_id}")
+            logger.info(f"Storing model and training data locally in directory {self.run_id}")
             self.save_data_locally()
             return
 
         if self.store_data_in_gcs:
-            self.model_train_doc['gcs_path'] = f"gs://{self.gcs_bucket_name}/{self.experiment_id}"
+            self.model_train_doc['gcs_path'] = f"gs://{self.gcs_bucket_name}/experiments/{self.experiment_name}/{self.run_id}"
             logger.info(f"Storing model and training data in GCS @ {self.model_train_doc['gcs_path']}")
             self.store_info_in_gcs()
             return
@@ -152,7 +152,7 @@ class MachineLearningExperimentTracking(Callback):
         return layers_friendly
 
     @staticmethod
-    def __gen_experiment_id(length=15):
+    def __gen_run_id(length=15):
         return "".join(random.choice(string.ascii_letters) for _ in range(length))
 
     @staticmethod
@@ -168,13 +168,13 @@ class MachineLearningExperimentTracking(Callback):
         return bool(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'))
 
     def __upload_file_to_gcp_bucket(self, filepath):
-        blob = self.gcs_bucket.blob(f"{self.experiment_id}/{filepath}")
+        blob = self.gcs_bucket.blob(f"experiments/{self.experiment_name}/{self.run_id}/{filepath}")
         blob.upload_from_filename(os.path.abspath(filepath))
 
     def __get_and_create_local_experiment_directory_if_needed(self):
-        directory = f"{self.experiment_id}"
+        directory = f"{self.experiment_name}/{self.run_id}/"
         if self.store_data_locally and not os.path.exists(directory):
-            os.mkdir(directory)
+            os.makedirs(directory)
         return directory
 
     def __get_filepath(self, kind):

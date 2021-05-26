@@ -32,6 +32,7 @@ class MachineLearningExperimentTracking(Callback):
             store_data_locally: bool = False,
             store_data_in_gcs: bool = True,
             experiment_description: Optional[str] = None,
+            run_id: Optional[str] = None,
             **kwargs
     ):
         """
@@ -57,7 +58,7 @@ class MachineLearningExperimentTracking(Callback):
                             "but it is helpful to briefly describe the experiment."
                             "Consider adding one before starting to train the model.")
 
-        self.run_id = self.__gen_run_id()
+        self.run_id = run_id if run_id else self.__gen_run_id()
         self.gcs_bucket = self.__get_gcs_bucket() if self.store_data_in_gcs else None
 
         self.model_train_doc = {}

@@ -62,3 +62,24 @@ def get_optimizer(
 
     return optimizer
 
+
+def get_generator_instances(
+        config: wandb.config,
+        add_data_augmentation: bool = False
+):
+    generator_kwargs = dict(
+        preprocessing_function=lambda x: x / 255.
+    )
+
+    train_generator_kwargs = dict(
+        horizontal_flip=config.horizontal_flip,
+        vertical_flip=config.vertical_flip,
+        rotation_range=config.rotation_range,
+        channel_shift_range=config.channel_shift_range,
+        fill_mode=config.fill_mode
+    )
+
+    generator = ImageDataGenerator(**generator_kwargs)
+    train_generator = ImageDataGenerator(**generator_kwargs, **train_generator_kwargs)
+
+    return train_generator, generator

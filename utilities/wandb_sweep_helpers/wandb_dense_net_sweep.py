@@ -2,6 +2,7 @@
 
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications.densenet import DenseNet121
 import wandb
 
@@ -48,7 +49,7 @@ def get_model(
 
     return model
 
-
+wandb.agent()
 def get_optimizer(
         config: wandb.config
 ):
@@ -71,15 +72,19 @@ def get_generator_instances(
         preprocessing_function=lambda x: x / 255.
     )
 
-    train_generator_kwargs = dict(
-        horizontal_flip=config.horizontal_flip,
-        vertical_flip=config.vertical_flip,
-        rotation_range=config.rotation_range,
-        channel_shift_range=config.channel_shift_range,
-        fill_mode=config.fill_mode
-    )
+    if add_data_augmentation:
+        train_generator_kwargs = dict(
+            horizontal_flip=config.horizontal_flip,
+            vertical_flip=config.vertical_flip,
+            rotation_range=config.rotation_range,
+            channel_shift_range=config.channel_shift_range,
+            fill_mode=config.fill_mode
+        )
 
     generator = ImageDataGenerator(**generator_kwargs)
-    train_generator = ImageDataGenerator(**generator_kwargs, **train_generator_kwargs)
+    if add_data_augmentation:
+        train_generator = ImageDataGenerator(**generator_kwargs, **train_generator_kwargs)
+    else:
+        train_generator = ImageDataGenerator(**generator_kwargs)
 
     return train_generator, generator

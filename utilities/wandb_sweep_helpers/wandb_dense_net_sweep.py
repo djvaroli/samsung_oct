@@ -49,7 +49,7 @@ def get_model(
 
     return model
 
-wandb.agent()
+
 def get_optimizer(
         config: wandb.config
 ):

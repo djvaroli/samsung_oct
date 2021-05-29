@@ -6,7 +6,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications.densenet import DenseNet121
 import wandb
 
-from utilities.model_utils import ModelWrapper
+from utils.model_utils import ModelWrapper
 
 
 def get_model(

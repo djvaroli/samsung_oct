@@ -4,8 +4,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
 
-import serving_utils
-import image_utils
+from utils import image_utils, serving_utils
 
 load_dotenv()
 app = Flask(__name__)

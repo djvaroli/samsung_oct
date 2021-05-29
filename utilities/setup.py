@@ -9,7 +9,6 @@ setuptools.setup(
     description="Utility functions in Python for OCT Project",
     long_description="Long description placeholder",
     long_description_content_type="text/markdown",
-    url="https://github.com/prmsolutions/backend",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gunicorn molo.main:app -w 2 --threads 2 -b 0.0.0.0:8003
+gunicorn molo.app:app -w 2 --threads 2 -b 0.0.0.0:8003

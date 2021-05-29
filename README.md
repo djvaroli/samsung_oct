@@ -1,7 +1,11 @@
 # Detecting Ocular Myopathy with Deep Learning from OCT Patient Scans
 
+## Demo
+A quick demo of what the app looks like at the moment. To run that locally for you, just follow the instructions
+further down.
+![MOLO Demo](.github/readme-assets/demo.gif)
 
-## Services
+## Running Locally with Docker
 
 Currently, there are two services that function together to make the full app.
 * The Tensorflow Serving service that handles model inference requests over gRPC

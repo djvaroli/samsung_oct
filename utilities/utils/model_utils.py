@@ -8,7 +8,8 @@ import tensorflow as tf
 from tensorflow.keras.losses import Loss
 from tensorflow.keras.metrics import Metric
 from tensorflow.keras.optimizers import Optimizer
-from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.activations import gelu, selu, relu
+from tensorflow.keras.layers import Dense, Dropout, LeakyReLU
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications.densenet import DenseNet121
 from tensorflow.keras.applications.resnet50 import ResNet50
@@ -16,7 +17,7 @@ from tensorflow.keras.applications.vgg19 import VGG19
 from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.applications.inception_v3 import InceptionV3
 
-import optimizer_utils
+from utils import optimizer_utils
 
 BASE_NAME_MODEL_MAP = {
     "densenet": DenseNet121,
@@ -191,6 +192,12 @@ def get_pre_trained_model(
     if model_name is None:
         model_name = base_model
 
+    if dense_classification_head_activation is "gelu":
+        dense_classification_head_activation = gelu
+
+    if dense_classification_head_activation is "selu":
+        dense_classification_head_activation = selu
+
     base_model_initializer = BASE_NAME_MODEL_MAP[base_model]
     base_model = base_model_initializer(
         weights=weights,
@@ -205,6 +212,8 @@ def get_pre_trained_model(
     dim = dense_start_dimension
     for i in range(num_dense_classification_head):
         x = Dense(dim, activation=dense_classification_head_activation)(x)
+        if dense_classification_head_activation is "leaky_relu":
+            x = LeakyReLU()(x)
         dim //= dim_shrink_factor
 
     output = Dense(num_classes, activation="softmax")(x)

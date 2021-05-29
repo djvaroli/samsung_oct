@@ -50,3 +50,9 @@ def make_image_into_batch(
         img: np.ndarray
 ):
     return np.expand_dims(img, axis=0)
+
+
+def get_image_shape_from_flow(flow):
+    img_batch, labels_batch = next(flow)
+    img = img_batch[0]
+    return img.shape

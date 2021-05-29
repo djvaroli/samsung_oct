@@ -13,5 +13,5 @@ RUN python3 -m pip install /utilities/
 ENV FLASK_DEBUG=False
 EXPOSE 8003
 
-RUN ["chmod", "+x", "/molo/entrypoint.sh"]
-ENTRYPOINT ["/molo/entrypoint.sh"]
+RUN ["chmod", "+x", "/molo/scripts/entrypoint.sh"]
+ENTRYPOINT ["/molo/scripts/entrypoint.sh"]

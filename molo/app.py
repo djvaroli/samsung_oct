@@ -46,7 +46,6 @@ def cache_predict_image_class():
     """
     img = image_utils.uploaded_image_to_array(request.files['file'])
     filename = secure_filename(request.files['file'].filename)
-
     model_input_shape = serving_utils.get_input_shape(MODEL_URI, model_name="dense_net")
     img = image_utils.resize_image(img, model_input_shape[:-1])
     img = image_utils.normalize_image(img)
@@ -54,7 +53,7 @@ def cache_predict_image_class():
     class_, prob_ = serving_utils.predict_ocular_myopathy_class(img, MODEL_URI, model_name="dense_net", timeout=3.0)
     CACHED_PREDICTIONS[filename] = {
         "class": class_,
-        "probability": prob_
+        "probability": round(prob_, 4)
     }
     return '', 204
 
@@ -65,5 +64,4 @@ def get_cached_predictions():
 
     :return:
     """
-    print(CACHED_PREDICTIONS)
     return CACHED_PREDICTIONS

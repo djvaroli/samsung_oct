@@ -11,12 +11,8 @@ from google.protobuf.json_format import MessageToJson
 MESSAGE_OPTIONS = [('grpc.max_message_length', 200 * 1024 * 1024),
                    ('grpc.max_receive_message_length', 200 * 1024 * 1024)]
 
-CLASS_LABELS = {
-    0: "normal",
-    1: "drusne",
-    2: "prusne",
-    3: "frusne"
-}
+CLASS_LABELS = {"CNV": 0, "DME": 1, "DRUSEN": 2, "NORMAL": 3}
+CLASS_LABELS_INVERTED = {val:key for key, val in CLASS_LABELS.items()}
 
 
 def get_model_metadata(
@@ -135,7 +131,7 @@ def predict_ocular_myopathy_class(
         class_scores[i] = score
 
     most_likely_index = int(np.argmax(class_scores, axis=0))
-    class_prediction = CLASS_LABELS.get(most_likely_index)
+    class_prediction = CLASS_LABELS_INVERTED.get(most_likely_index)
     probability = np.round(np.max(class_scores), 4) * 100
 
     return class_prediction, probability

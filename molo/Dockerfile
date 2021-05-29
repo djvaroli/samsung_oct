@@ -13,5 +13,6 @@ RUN python3 -m pip install /utilities/
 ENV FLASK_DEBUG=False
 EXPOSE 8003
 
+# we need this to make the entrypoint script executable, otherwise we'll get a permissions error
 RUN ["chmod", "+x", "/molo/scripts/entrypoint.sh"]
 ENTRYPOINT ["/molo/scripts/entrypoint.sh"]

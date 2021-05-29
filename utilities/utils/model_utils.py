@@ -16,7 +16,7 @@ from tensorflow.keras.applications.vgg19 import VGG19
 from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.applications.inception_v3 import InceptionV3
 
-import optimizer_utils
+from utils import optimizer_utils
 
 BASE_NAME_MODEL_MAP = {
     "densenet": DenseNet121,

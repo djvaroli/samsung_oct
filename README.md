@@ -3,6 +3,7 @@
 ## Demo
 A quick demo of what the app looks like at the moment. To run that locally for you, just follow the instructions
 further down.
+
 ![MOLO Demo](.github/readme-assets/demo.gif)
 
 ## Running Locally with Docker

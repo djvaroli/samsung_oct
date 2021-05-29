@@ -1,0 +1,89 @@
+<html>
+    <head>
+        <title>File Upload</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.1/min/dropzone.min.css">
+    </head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap');
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .container {
+            position: relative;
+            width: 60%;
+            margin: 0 auto;
+        }
+
+        #image-upload {
+            border: 2px dashed #0087F7;
+            border-radius: 5px;
+            height: 300px;
+        }
+
+        .large-text {
+            font-size: 2rem;
+        }
+
+        .nice-button {
+            padding: 1rem;
+            background-color: white;
+            border: 1px solid #333;
+            border-radius: 5px;
+        }
+
+        .nice-button:hover {
+            background-color: #0087f7;
+            cursor: pointer;
+            transition: 0.15s all;
+            color: white;
+        }
+
+        .underlined {
+            text-decoration: underline;
+        }
+    </style>
+    <body>
+        <div class="container">
+            <h1>Samsung OCT Classification</h1>
+            <br>
+            <br>
+            <div id="dropzone">
+                <form action="{{ url_for('cache_predict_image_class') }}" class="dropzone needsclick dz-clickable" id="image-upload">
+                    <div class="dz-message needsclick large-text">
+                        <button type="button" class="dz-button">Drop files here or click to upload.</button>
+                    </div>
+                </form>
+            </div>
+            <button type="button" class="nice-button" id="get-cached-predictions-button">
+                Make predictions
+            </button>
+            <div id="predictions">
+
+            </div>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.1/min/dropzone.min.js"></script>
+        <script>
+            $("#get-cached-predictions-button").click(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "GET",
+                    url: "{{ url_for('get_cached_predictions') }}",
+                    success: function(response) {
+                        let html_string = '';
+                        $.each(response, (key, value) => {
+                            html_string += "<h3 class='underlined'>" + key.toString() + "</h3>"
+                            html_string += "<h4>Predicted class: " + value.class.toString() + "</h4>"
+                            html_string += "<h4>Probability: " + value.probability.toString() + "%</h4>"
+                            $("#predictions").html(html_string)
+                        });
+                    },
+                    error: function(result) {
+                        alert('error');
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

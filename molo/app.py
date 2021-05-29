@@ -12,8 +12,8 @@ app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
 app.config['UPLOAD_PATH'] = 'uploads'
-# MODEL_URI = "prediction-model:8500"
-MODEL_URI = "0.0.0.0:8500"
+MODEL_URI = "prediction-model:8500"
+# MODEL_URI = "0.0.0.0:8500"
 
 CACHED_PREDICTIONS = {}
 

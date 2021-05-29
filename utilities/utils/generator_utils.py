@@ -62,4 +62,5 @@ def create_flows(
         print(f"Creating test data flow.")
         flows['test'] = generator.flow_from_directory(path_to_data / "test")
 
+    flows = {subset: flow for subset, flow in flows.items() if flow is not None}
     return flows

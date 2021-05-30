@@ -158,15 +158,15 @@ class ExtendedModel(Model):
 
 def get_pre_trained_model(
         base_model: str,
-        pooling: str,
         input_shape: Tuple,
+        pooling: str = "max",
         model_name: Optional[str] = None,
         weights: str = "imagenet",
         dropout_rate: float = 0.3,
         num_classes: int = 4,
         dense_start_dimension: int = 512,
-        num_dense_classification_head: int = 1,
-        dense_classification_head_activation: str = "relu",
+        num_dense_classification_head: int = 0,
+        dense_classification_head_activation: str = "leaky_relu",
         dim_shrink_factor: int = 1,
         **kwargs
 ) -> ExtendedModel:
@@ -233,8 +233,8 @@ def get_pre_trained_model(
 
 def get_pre_trained_and_compiled_model(
         base_model: str,
-        pooling: str,
         input_shape: Tuple,
+        pooling: str = "max",
         loss: Union[Loss, str] = "categorical_crossentropy",
         optimizer: Union[str, Optimizer] = None,
         metrics: List[Union[str, Metric]] = None,
@@ -253,7 +253,7 @@ def get_pre_trained_and_compiled_model(
     :param kwargs:
     :return:
     """
-    model = get_pre_trained_model(base_model, pooling, input_shape, **kwargs)
+    model = get_pre_trained_model(base_model, input_shape, pooling, **kwargs)
     if metrics is None:
         metrics = ['accuracy']
         logging.warning("No metrics were specified. Using accuracy as default")

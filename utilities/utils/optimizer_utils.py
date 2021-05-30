@@ -13,7 +13,7 @@ def get_adam_from_kwargs(
     beta_1 = kwargs.pop('beta_1', 0.9)
     beta_2 = kwargs.pop('beta_2', 0.999)
     epsilon = kwargs.pop('epsilon', 1e-7)
-    amsgrad = kwargs.pop('amsgrad', False)
+    amsgrad = kwargs.pop('amsgrad', True)
 
     optimizer = Adam(
         learning_rate=learning_rate,

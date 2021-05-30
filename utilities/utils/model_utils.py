@@ -165,8 +165,8 @@ def get_pre_trained_model(
         dropout_rate: float = 0.3,
         num_classes: int = 4,
         dense_start_dimension: int = 512,
-        num_dense_classification_head: int = 1,
-        dense_classification_head_activation: str = "relu",
+        num_dense_classification_head: int = 0,
+        dense_classification_head_activation: str = "leaky_relu",
         dim_shrink_factor: int = 1,
         **kwargs
 ) -> ExtendedModel:

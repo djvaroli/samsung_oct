@@ -2,16 +2,20 @@ import os
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, request
+from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 
 from utils import image_utils, serving_utils
 
 load_dotenv()
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
 app.config['UPLOAD_PATH'] = 'uploads'
 MODEL_URI = "prediction-model:8500"
+
 # MODEL_URI = "0.0.0.0:8500"
 
 CACHED_PREDICTIONS = {}
@@ -55,6 +59,12 @@ def cache_predict_image_class():
         "probability": round(prob_, 4)
     }
     return '', 204
+
+
+@app.route("/upload", methods=["POST"])
+def upload_image():
+    print(request.files)
+    return {}
 
 
 @app.route('/predict/results', methods=['GET'])

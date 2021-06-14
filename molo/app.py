@@ -1,76 +1,67 @@
 import os
+from typing import *
+import datetime
+from datetime import datetime as dt
+import time
+import ast
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request
-from flask_cors import CORS, cross_origin
-from werkzeug.utils import secure_filename
+import dateutil
+import numpy as np
+from fastapi import FastAPI, Request, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+from google.cloud import storage
 
-from utils import image_utils, serving_utils
+# from utils import image_utils, serving_utils
 
 load_dotenv()
-app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
-app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
-app.config['UPLOAD_PATH'] = 'uploads'
-MODEL_URI = "prediction-model:8500"
-
-# MODEL_URI = "0.0.0.0:8500"
-
-CACHED_PREDICTIONS = {}
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+MODEL_URI = os.environ['MODEL_URI']
 
 
-@app.errorhandler(413)
-def too_large(e):
+@app.get("/")
+async def home():
     """
-
-    :param e:
     :return:
     """
-    return "File is too large", 413
+    return "Status: Healthy!"
 
 
-@app.route("/", methods=['GET'])
-def home():
+@app.post('/predict')
+async def predict_endpoint(file: UploadFile = File(...)):
     """
-
     :return:
     """
-    files = os.listdir(app.config['UPLOAD_PATH'])
-    return render_template("index.html", files=files)
+    client = storage.Client()
+    bucket = client.bucket("fourth-brain-course-files")
+    blob = bucket.blob(f"capstone-project/uploaded-images/{file.filename}")
+    blob.upload_from_file(file.file)
+    print(dir(file.file), type(file.file))
+    arr = np.fromfile(file.file)
+    print(arr)
+    url = blob.generate_signed_url(
+        expiration=604800,
+        version='v4'
+    )
+    return {"filename": file.filename, "url": url}
 
 
-@app.route('/predict/cache', methods=['POST'])
-def cache_predict_image_class():
-    """
 
-    :return:
-    """
-    img = image_utils.uploaded_image_to_array(request.files['file'])
-    filename = secure_filename(request.files['file'].filename)
-    model_input_shape = serving_utils.get_input_shape(MODEL_URI, model_name="dense_net")
-    img = image_utils.resize_image(img, model_input_shape[:-1])
-    img = image_utils.normalize_image(img)
-    img = image_utils.make_image_into_batch(img)
-    class_, prob_ = serving_utils.predict_ocular_myopathy_class(img, MODEL_URI, model_name="dense_net", timeout=3.0)
-    CACHED_PREDICTIONS[filename] = {
-        "class": class_,
-        "probability": round(prob_, 4)
-    }
-    return '', 204
-
-
-@app.route("/upload", methods=["POST"])
-def upload_image():
-    print(request.files)
-    return {}
-
-
-@app.route('/predict/results', methods=['GET'])
-def get_cached_predictions():
-    """
-
-    :return:
-    """
-    return CACHED_PREDICTIONS
+# img = image_utils.uploaded_image_to_array(request.files['file'])
+# filename = secure_filename(request.files['file'].filename)
+# model_input_shape = serving_utils.get_input_shape(MODEL_URI, model_name="dense_net")
+# img = image_utils.resize_image(img, model_input_shape[:-1])
+# img = image_utils.normalize_image(img)
+# img = image_utils.make_image_into_batch(img)
+# class_, prob_ = serving_utils.predict_ocular_myopathy_class(img, MODEL_URI, model_name="dense_net", timeout=3.0)
+# CACHED_PREDICTIONS[filename] = {
+#     "class": class_,
+#     "probability": round(prob_, 4)
+# }

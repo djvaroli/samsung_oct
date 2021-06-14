@@ -1,27 +1,66 @@
 <template>
-  <vue-dropzone
-      ref="myVueDropzone"
-      id="oct-image-upload"
-      :options="dropzoneOptions"
-  >
-  </vue-dropzone>
+  <section>
+    <b-field>
+      <b-upload v-model="dropFiles"
+                multiple
+                drag-drop>
+        <section class="section">
+          <div class="content has-text-centered">
+            <p>
+              <b-icon
+                  icon="upload"
+                  size="is-large">
+              </b-icon>
+            </p>
+            <p>Drop your files here or click to upload</p>
+          </div>
+        </section>
+      </b-upload>
+    </b-field>
+
+    <div class="tags">
+      <span v-for="(file, index) in dropFiles"
+            :key="index"
+            class="tag is-primary" >
+          {{file.name}}
+          <button class="delete is-small"
+                  type="button"
+                  @click="deleteDropFile(index)">
+          </button>
+      </span>
+    </div>
+    <b-button class="is-info" @click="uploadFilesAsync">Upload</b-button>
+  </section>
 </template>
 
-<script>
-import vue2Dropzone from 'vue2-dropzone'
-import 'vue2-dropzone/dist/vue2Dropzone.min.css'
 
+<script>
 export default {
-  name: "ImageUploadComponent",
-  components: {
-    vueDropzone: vue2Dropzone
-  },
-  data () {
+  data() {
     return {
-      dropzoneOptions: {
-        url: 'http://127.0.0.1:5000/upload',
-        thumbnailWidth: 150,
-        maxFilesize: 5,
+      dropFiles: [],
+      results: []
+    }
+  },
+  methods: {
+    deleteDropFile(index) {
+      this.dropFiles.splice(index, 1)
+    },
+    uploadFilesAsync() {
+      for (let i = 0; i < this.dropFiles.length; i++) {
+        let formData = new FormData();
+        formData.append('file', this.dropFiles[i]);
+        this.axios.post("/predict",
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            }
+        )
+        .then( (response) => {
+          this.results.push(response.data);
+        })
       }
     }
   }

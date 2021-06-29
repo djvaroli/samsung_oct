@@ -1,9 +1,9 @@
 <template>
   <div id="app" class="container">
     <Header></Header>
-    <ImageUploadComponent></ImageUploadComponent>
+    <ImageUploadComponent v-on:prediction="updatePredictionData" v-on:clear-data="clearPredictionData"></ImageUploadComponent>
     <br>
-    <PredictionOutputComponent :prediction-data=predictionData :assigned-labels="assignedLabels"></PredictionOutputComponent>
+    <PredictionOutputComponent :prediction-data=predictionData></PredictionOutputComponent>
     <br>
     <DownloadPredictionSummaryComponent></DownloadPredictionSummaryComponent>
   </div>
@@ -26,32 +26,15 @@ export default {
   data () {
     return {
       predictionData: [
-        {
-          "uploadedImageUrl": "https://storage.cloud.google.com/samsung-oct/public/uploaded-images/DME_test.png?authuser=1",
-          "gradCamImageUrl": "https://storage.cloud.google.com/samsung-oct/public/uploaded-images/0-resnet152-gradcam-layer4-bull_mastiff.png?authuser=1",
-          "predictedLabel": "Normal",
-          "predictionConfidence": 34,
-          "isCollapsed": false,
-          "filename": "testFile.png"
-        },
-        {
-          "uploadedImageUrl": "https://storage.cloud.google.com/samsung-oct/public/uploaded-images/DME_test.png?authuser=1",
-          "gradCamImageUrl": "https://storage.cloud.google.com/samsung-oct/public/uploaded-images/0-resnet152-gradcam-layer4-bull_mastiff.png?authuser=1",
-          "predictedLabel": "Normal",
-          "predictionConfidence": 43,
-          "isCollapsed": false,
-          "filename": "testFile.png"
-        },
-        {
-          "uploadedImageUrl": "https://storage.cloud.google.com/samsung-oct/public/uploaded-images/DME_test.png?authuser=1",
-          "gradCamImageUrl": "https://storage.cloud.google.com/samsung-oct/public/uploaded-images/0-resnet152-gradcam-layer4-bull_mastiff.png?authuser=1",
-          "predictedLabel": "Normal",
-          "predictionConfidence": 97,
-          "isCollapsed": true,
-          "filename": "testFile.png"
-        }
       ],
-      assignedLabels: ["Normal", "Normal", "Normal"]
+    }
+  },
+  methods: {
+    updatePredictionData(data) {
+      this.predictionData.push(data);
+    },
+    clearPredictionData() {
+      this.predictionData = [];
     }
   }
 }

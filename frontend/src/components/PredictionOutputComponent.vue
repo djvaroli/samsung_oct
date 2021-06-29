@@ -78,7 +78,7 @@
 <script>
 export default {
   name: "PredictionOutputComponent",
-  props: ["predictionData", "assignedLabels"],
+  props: ["predictionData"],
   data () {
     return {
     }

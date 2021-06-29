@@ -29,7 +29,8 @@
           </button>
       </span>
     </div>
-    <b-button class="is-info" @click="uploadFilesAsync">Upload</b-button>
+    <b-button class="is-info" @click="makePredictionsAsync">Upload</b-button>
+    <b-button class="flex-item is-danger" @click="clearUploadsAndResults">Clear</b-button>
   </section>
 </template>
 
@@ -38,15 +39,14 @@
 export default {
   data() {
     return {
-      dropFiles: [],
-      results: []
+      dropFiles: []
     }
   },
   methods: {
     deleteDropFile(index) {
       this.dropFiles.splice(index, 1)
     },
-    uploadFilesAsync() {
+    makePredictionsAsync() {
       for (let i = 0; i < this.dropFiles.length; i++) {
         let formData = new FormData();
         formData.append('file', this.dropFiles[i]);
@@ -59,9 +59,12 @@ export default {
             }
         )
         .then( (response) => {
-          this.results.push(response.data);
+          this.$emit("prediction", response.data);
         })
       }
+    },
+    clearUploadsAndResults() {
+      this.$emit("clear-data")
     }
   }
 }

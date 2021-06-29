@@ -10,7 +10,6 @@ RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r requirements.txt
 RUN python3 -m pip install /utilities/
 
-ENV FLASK_DEBUG=False
 EXPOSE 8003
 
 # we need this to make the entrypoint script executable, otherwise we'll get a permissions error

@@ -1,11 +1,18 @@
 <template>
-  <div id="app" class="container">
+  <div id="app">
     <Header></Header>
-    <ImageUploadComponent v-on:prediction="updatePredictionData" v-on:clear-data="clearPredictionData"></ImageUploadComponent>
-    <br>
-    <PredictionOutputComponent :prediction-data=predictionData></PredictionOutputComponent>
-    <br>
-    <DownloadPredictionSummaryComponent></DownloadPredictionSummaryComponent>
+    <div id="content" class="container">
+      <div id="upload-control-area" class="floating-component">
+        <ImageUploadComponent
+            id="image-upload-component"
+            v-on:prediction="updatePredictionData"
+            v-on:clear-data="clearPredictionData"
+        ></ImageUploadComponent>
+      </div>
+      <div id="prediction-control-area">
+        <PredictionOutputComponent :prediction-data=predictionData></PredictionOutputComponent>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -13,14 +20,12 @@
 import Header from "./components/Header";
 import ImageUploadComponent from "./components/ImageUploadComponent";
 import PredictionOutputComponent from "./components/PredictionOutputComponent";
-import DownloadPredictionSummaryComponent from "./components/DownloadPredictionSummaryComponent";
 
 export default {
   name: 'App',
   components: {
     ImageUploadComponent,
     PredictionOutputComponent,
-    DownloadPredictionSummaryComponent,
     Header
   },
   data () {
@@ -40,12 +45,26 @@ export default {
 }
 </script>
 
-<style>
+<style scoped lang="scss">
 #app {
   font-family: 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  margin-top: 60px;
+}
+
+#content {
+  display: flex;
+  flex-direction: column;
+}
+
+#upload-control-area {
+  max-width: 30rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+#image-upload-component {
+  width: 100%;
 }
 </style>

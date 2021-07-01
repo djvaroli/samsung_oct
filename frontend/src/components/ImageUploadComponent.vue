@@ -1,9 +1,7 @@
 <template>
   <section>
     <b-field>
-      <b-upload v-model="dropFiles"
-                multiple
-                drag-drop>
+      <b-upload v-model="dropFiles" multiple drag-drop expanded>
         <section class="section">
           <div class="content has-text-centered">
             <p>
@@ -29,8 +27,15 @@
           </button>
       </span>
     </div>
-    <b-button class="is-info" @click="makePredictionsAsync">Upload</b-button>
-    <b-button class="flex-item is-danger" @click="clearUploadsAndResults">Clear</b-button>
+    <b-button
+        class="is-info"
+        @click="makePredictionsAsync"
+        :loading="loading"
+        :disabled="loading"
+    >
+      Predict
+    </b-button>
+    <b-button class="is-danger h-margin-5" @click="clearUploadsAndResults" :disabled="loading">Clear</b-button>
   </section>
 </template>
 
@@ -39,17 +44,30 @@
 export default {
   data() {
     return {
-      dropFiles: []
+      dropFiles: [],
+      loading: false,
+      numPredictionsQueued: 0,
+      numPredictionsCompleted: 0
     }
   },
   methods: {
-    deleteDropFile(index) {
-      this.dropFiles.splice(index, 1)
+    deleteDropFile(index, deleteCount = 1) {
+      this.dropFiles.splice(index, deleteCount)
     },
     makePredictionsAsync() {
+      // we are going to queue up every file
+      this.numPredictionsQueued += this.dropFiles.length;
+
+      // loop over every file and dispatch request
       for (let i = 0; i < this.dropFiles.length; i++) {
         let formData = new FormData();
         formData.append('file', this.dropFiles[i]);
+
+        // for display to user
+        this.loading = true;
+
+        // make several async requests and emit prediction event as results come in
+        // TODO Handle this with Vuex
         this.axios.post("/predict",
             formData,
             {
@@ -60,19 +78,25 @@ export default {
         )
         .then( (response) => {
           this.$emit("prediction", response.data);
+          this.numPredictionsCompleted += 1;
+          if (this.numPredictionsCompleted === this.numPredictionsQueued) {
+            this.loading = false;
+            this.numPredictionsQueued = 0;
+            this.numPredictionsCompleted = 0;
+          }
         })
       }
     },
     clearUploadsAndResults() {
-      this.$emit("clear-data")
+      this.$emit("clear-data");
+      this.deleteDropFile(0, this.dropFiles.length);
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
-  #oct-image-upload {
-    border: 2px dashed #0087F7;
-  }
-
+//.h-margin-5 {
+//  margin: 0 5px;
+//}
 </style>

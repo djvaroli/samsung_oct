@@ -71,6 +71,22 @@ def make_image_into_batch(
     return np.expand_dims(img, axis=0)
 
 
+def prepare_image_for_prediction(
+        img_array: np.ndarray,
+        reshape_size: tuple
+) -> np.ndarray:
+    """
+    Performs necessary steps to get image into appropriate format for model prediction
+    :param img_array:
+    :param reshape_size:
+    :return:
+    """
+    img = resize_image(img_array, reshape_size)
+    img = normalize_image(img)
+    img = make_image_into_batch(img)
+    return img
+
+
 def get_image_shape_from_flow(flow):
     img_batch, labels_batch = next(flow)
     img = img_batch[0]

@@ -170,12 +170,14 @@ def get_output_and_grad_cam_map(
     heatmap = (cam - cam.min()) / (cam.max() - cam.min())
 
     cam = cv2.applyColorMap(np.uint8(255*heatmap), cv2.COLORMAP_JET)
-    img = np.squeeze(img, axis=0)
-    cam_image = cv2.addWeighted(cv2.cvtColor(img.astype("uint8"), cv2.COLOR_RGB2BGR), 0.5, cam, 1, 0)
+    img = np.squeeze(img, axis=0) * 255.
+    cam_image = cv2.addWeighted(cv2.cvtColor(img.astype("uint8"), cv2.COLOR_RGB2BGR), 0.5, cam, 0.5, 0)
 
-    most_likely_index = int(np.argmax(class_scores, axis=0))
+    # line immediately before is relevant for testing, ignore otherwise
+    class_scores = np.ravel(class_scores)[:len(CLASS_LABELS_INVERTED)]
+    most_likely_index = int(np.argmax(class_scores))
     class_prediction = CLASS_LABELS_INVERTED.get(most_likely_index)
-    probability = np.round(np.max(class_scores), 4) * 100
+    probability = round(np.max(class_scores) * 100, 2)
     prediction = {"prediction": class_prediction, "confidence": probability}
 
     return prediction, cam_image

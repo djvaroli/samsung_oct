@@ -14,8 +14,7 @@ MESSAGE_OPTIONS = [('grpc.max_message_length', 200 * 1024 * 1024),
                    ('grpc.max_receive_message_length', 200 * 1024 * 1024)]
 
 CLASS_LABELS = {"CNV": 0, "DME": 1, "DRUSEN": 2, "NORMAL": 3}
-CLASS_LABELS_INVERTED = {val:key for key, val in CLASS_LABELS.items()}
-CAT_CLASS_INDEX = 281
+CLASS_LABELS_INVERTED = {val: key for key, val in CLASS_LABELS.items()}
 
 model = tf.keras.applications.vgg16.VGG16(weights='imagenet', include_top=True)
 grad_model = tf.keras.models.Model([model.inputs], [model.get_layer("block5_conv3").output, model.output])
@@ -145,16 +144,20 @@ def predict_ocular_myopathy_class(
 
 def get_output_and_grad_cam_map(
         img: np.ndarray,
-):
+) -> Tuple[dict, np.ndarray]:
+    """
+    Returns predictions and GradCam heatmap overlaid onto the original image
+    :param img:
+    :return:
+    """
     with tf.GradientTape() as tape:
-        conv_outputs, predictions = grad_model(np.array(img))
-        loss = predictions[:, CAT_CLASS_INDEX]
+        conv_outputs, class_scores = grad_model(np.array(img))
+        loss = class_scores[:, len(CLASS_LABELS_INVERTED)]
 
     output = conv_outputs[0]
     grads = tape.gradient(loss, conv_outputs)[0]
 
     guided_grads = tf.cast(output > 0, 'float32') * tf.cast(grads > 0, 'float32') * grads
-
     weights = tf.reduce_mean(guided_grads, axis=(0, 1))
 
     cam = np.ones(output.shape[0: 2], dtype=np.float32)
@@ -170,4 +173,9 @@ def get_output_and_grad_cam_map(
     img = np.squeeze(img, axis=0)
     cam_image = cv2.addWeighted(cv2.cvtColor(img.astype("uint8"), cv2.COLOR_RGB2BGR), 0.5, cam, 1, 0)
 
-    return predictions, cam_image
+    most_likely_index = int(np.argmax(class_scores, axis=0))
+    class_prediction = CLASS_LABELS_INVERTED.get(most_likely_index)
+    probability = np.round(np.max(class_scores), 4) * 100
+    prediction = {"prediction": class_prediction, "confidence": probability}
+
+    return prediction, cam_image

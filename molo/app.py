@@ -55,35 +55,24 @@ async def predict_endpoint(file: UploadFile = File(...)):
 
     # process the image to be in the right format and get model predictions, as well as the GradCam output
     img = image_utils.bytes_to_numpy_array(blob.download_as_bytes())
-    img = image_utils.resize_image(img, (224, 224))
-    img = image_utils.normalize_image(img)
-    img = image_utils.make_image_into_batch(img)
-    predictions, grad_cam_array = serving_utils.get_output_and_grad_cam_map(img)
+    img = image_utils.prepare_image_for_prediction(img, reshape_size=(224, 224))
 
+    # get the predicted label and the GradCam heatmap
+    prediction, grad_cam_array = serving_utils.get_output_and_grad_cam_map(img)
+
+    # save the generated GradCam heatmap and generate a signed url to display on the frontend
     _, gcs_file = tempfile.mkstemp('.png')
     cv2.imwrite(gcs_file, grad_cam_array)
-    im = cv2.imread(gcs_file)
-    file_save_path = UPLOADED_IMAGES_GCS_PATH / f"GC-{file.filename}"
+    grad_cam_filepath = UPLOADED_IMAGES_GCS_PATH / f"GC-{file.filename}"
     grad_cam_blob = gcs_utils.upload_to_gcs_from_filename(
-        gcs_file, gcs_bucket, str(file_save_path), return_blob=True
+        gcs_file, gcs_bucket, str(grad_cam_filepath), return_blob=True
     )
-
     grad_cam_url = grad_cam_blob.generate_signed_url(expiration=604800, version='v4')
 
-    print(grad_cam_url)
-    # return the necessary data
-    data = {
+    return {
         "uploadedImageUrl": image_url,
         "gradCamImageUrl": grad_cam_url,
-        "predictedLabel": "DRUSEN",
-        "predictionConfidence": round(predictions.numpy().max() * 100, 2),
+        "predictedLabel": prediction['prediction'],
+        "predictionConfidence": prediction['confidence'],
         "filename": file.filename
     }
-    return data
-
-
-# img = image_utils.uploaded_image_to_array(request.files['file'])
-# filename = secure_filename(request.files['file'].filename)
-# model_input_shape = serving_utils.get_input_shape(MODEL_URI, model_name="dense_net")
-# img = image_utils.resize_image(img, model_input_shape[:-1])
-# class_, prob_ = serving_utils.predict_ocular_myopathy_class(img, MODEL_URI, model_name="dense_net", timeout=3.0)

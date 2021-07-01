@@ -171,7 +171,7 @@ def get_output_and_grad_cam_map(
 
     cam = cv2.applyColorMap(np.uint8(255*heatmap), cv2.COLORMAP_JET)
     img = np.squeeze(img, axis=0) * 255.
-    cam_image = cv2.addWeighted(cv2.cvtColor(img.astype("uint8"), cv2.COLOR_RGB2BGR), 0.5, cam, 0.5, 0)
+    cam_image = cv2.addWeighted(cv2.cvtColor(img.astype("uint8"), cv2.COLOR_RGB2BGR), 0.6, cam, 0.4, 0)
 
     # line immediately before is relevant for testing, ignore otherwise
     class_scores = np.ravel(class_scores)[:len(CLASS_LABELS_INVERTED)]

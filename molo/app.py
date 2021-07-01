@@ -73,6 +73,7 @@ async def predict_endpoint(file: UploadFile = File(...)):
         "uploadedImageUrl": image_url,
         "gradCamImageUrl": grad_cam_url,
         "predictedLabel": prediction['prediction'],
+        "assignedLabel": prediction['prediction'],
         "predictionConfidence": prediction['confidence'],
         "filename": file.filename
     }

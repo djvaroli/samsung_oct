@@ -1,77 +1,79 @@
 <template>
   <div class="prediction-output-wrapper">
-    <div class="prediction-output-row" v-for="(item, i) in predictionData" :key="i">
-      <template v-if="!item.isCollapsed">
-        <img :src=item.uploadedImageUrl class="prediction-uploaded-image flex-item" rel="preload">
-        <img :src=item.gradCamImageUrl class="prediction-grad-cam-image flex-item" rel="preload">
-        <div class="prediction-output-summary-wrapper flex-item">
-          <div class="prediction-filename">
-            <span class="big-text">Filename: {{ item.filename }}</span>
-          </div>
-          <div>
-            <span class="big-text">Label: <span class="predicted-label">{{ item.predictedLabel }}</span></span>
-          </div>
-          <div>
-            <span class="big-text">Prediction Confidence: <span class="prediction-confidence">{{ item.predictionConfidence }} %</span></span>
-          </div>
-          <br>
-          <div class="prediction-output-interaction-buttons">
-            <br>
-            <div class="select-alternate-class-buttons">
-              <b-button
-                  class="is-primary lex-item"
-                  v-bind:class="{'is-outlined' : item.predictedLabel !== 'Normal'}"
-                  @click="() => reassignLabel(i, 'Normal')"
-              >
-                Normal
-              </b-button>
-              <b-button
-                  class="is-primary flex-item"
-                  @click="() => reassignLabel(i, 'DRUSEN')"
-                  v-bind:class="{'is-outlined' : item.predictedLabel !== 'DRUSEN'}"
-              >
-                DRUSEN
-              </b-button>
-              <b-button
-                  class="is-primary flex-item"
-                  @click="() => reassignLabel(i, 'CNV')"
-                  v-bind:class="{'is-outlined' : item.predictedLabel !== 'CNV'}"
-              >
-                CNV
-              </b-button>
-              <b-button
-                  class="is-primary flex-item"
-                  @click="() => reassignLabel(i, 'DME')"
-                  v-bind:class="{'is-outlined' : item.predictedLabel !== 'DME'}"
-              >
-                DME
-              </b-button>
+    <transition-group name="slide-fade">
+      <div class="prediction-output-row floating-component" v-for="(item, i) in predictionData" :key="i">
+        <template v-if="!item.isCollapsed">
+          <img :src=item.uploadedImageUrl class="prediction-uploaded-image flex-item" rel="preload">
+          <img :src=item.gradCamImageUrl class="prediction-grad-cam-image flex-item" rel="preload">
+          <div class="prediction-output-summary-wrapper flex-item">
+            <div class="prediction-filename">
+              <span class="big-text">Filename: {{ item.filename }}</span>
+            </div>
+            <div>
+              <span class="big-text">Label: <span class="predicted-label">{{ item.predictedLabel }}</span></span>
+            </div>
+            <div>
+              <span class="big-text">Prediction Confidence: <span class="prediction-confidence">{{ item.predictionConfidence }} %</span></span>
             </div>
             <br>
-            <div class="confirm-prediction-button">
-              <b-button class="is-success">Confirm label</b-button>
+            <div class="prediction-output-interaction-buttons">
+              <br>
+              <div class="select-alternate-class-buttons">
+                <b-button
+                    class="is-primary lex-item"
+                    v-bind:class="{'is-outlined' : item.predictedLabel !== 'Normal'}"
+                    @click="() => reassignLabel(i, 'Normal')"
+                >
+                  Normal
+                </b-button>
+                <b-button
+                    class="is-primary flex-item"
+                    @click="() => reassignLabel(i, 'DRUSEN')"
+                    v-bind:class="{'is-outlined' : item.predictedLabel !== 'DRUSEN'}"
+                >
+                  DRUSEN
+                </b-button>
+                <b-button
+                    class="is-primary flex-item"
+                    @click="() => reassignLabel(i, 'CNV')"
+                    v-bind:class="{'is-outlined' : item.predictedLabel !== 'CNV'}"
+                >
+                  CNV
+                </b-button>
+                <b-button
+                    class="is-primary flex-item"
+                    @click="() => reassignLabel(i, 'DME')"
+                    v-bind:class="{'is-outlined' : item.predictedLabel !== 'DME'}"
+                >
+                  DME
+                </b-button>
+              </div>
+              <br>
+              <div class="confirm-prediction-button">
+                <b-button class="is-success">Confirm label</b-button>
+              </div>
             </div>
           </div>
-        </div>
-      </template>
-      <template v-else>
-        <div class="prediction-output-summary-wrapper-collapsed">
-          <div>
-            <span class="big-text">Predicted Label: {{ item.predictedLabel }}</span>
+        </template>
+        <template v-else>
+          <div class="prediction-output-summary-wrapper-collapsed">
+            <div>
+              <span class="big-text">Predicted Label: {{ item.predictedLabel }}</span>
+            </div>
+            <div>
+              <span class="big-text">Prediction Confidence: {{ item.predictionConfidence }} %</span>
+            </div>
           </div>
-          <div>
-            <span class="big-text">Prediction Confidence: {{ item.predictionConfidence }} %</span>
-          </div>
-        </div>
-        <b-button
-            class="is-info is-rounded"
-            icon-right="unfold-more-horizontal"
-            @click="expandCard(i)"
-        >
-          Expand
-        </b-button>
-      </template>
-    </div>
+          <b-button
+              class="is-info is-rounded"
+              icon-right="unfold-more-horizontal"
+              @click="expandCard(i)"
+          >
+            Expand
+          </b-button>
+        </template>
+      </div>
+    </transition-group>
   </div>
 </template>
 
@@ -100,7 +102,7 @@ export default {
     flex-direction: row;
     align-items: top;
     justify-content: flex-start;
-    border: 2px solid #0087f7;
+    //border: 2px solid #0087f7;
     padding: 1rem;
     border-radius: 5px;
     margin-bottom: 1rem;
@@ -130,5 +132,16 @@ export default {
     padding: 0.1rem;
     border-radius: 3px;
     color: white;
+  }
+
+  .slide-fade-enter-active {
+    transition: all .5s ease;
+  }
+  .slide-fade-leave-active {
+    transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  }
+  .slide-fade-enter, .slide-fade-leave-to
+    /* .slide-fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
   }
 </style>

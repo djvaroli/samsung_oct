@@ -1,8 +1,8 @@
 <template>
-  <b-navbar>
+  <b-navbar id="navbar">
     <template #brand>
-      <b-navbar-item tag="router-link" :to="{ path: '/' }">
-        Molo
+      <b-navbar-item>
+        <img id="logo" src="https://storage.googleapis.com/fourth-brain-course-files/capstone-project/public/oct_eye_molo_white_full.svg">
       </b-navbar-item>
     </template>
   </b-navbar>
@@ -14,6 +14,13 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+  #navbar {
+    background-color: #005bffeb
+  }
 
+  #logo {
+    height: 6rem;
+    max-height: 6rem;
+  }
 </style>

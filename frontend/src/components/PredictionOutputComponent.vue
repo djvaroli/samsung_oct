@@ -1,16 +1,23 @@
 <template>
   <div class="prediction-output-wrapper">
+    <transition name="fade">
+      <div class="space-filler-message big-text" v-if="predictionData.length === 0">
+        Predictions will appear here!
+      </div>
+    </transition>
     <transition-group name="slide-fade">
-      <div class="prediction-output-row floating-component" v-for="(item, i) in predictionData" :key="i">
+      <div class="prediction-output-row" v-for="(item, i) in predictionData" :key="i">
         <template v-if="!item.isCollapsed">
-          <img :src=item.uploadedImageUrl class="prediction-uploaded-image flex-item" rel="preload">
-          <img :src=item.gradCamImageUrl class="prediction-grad-cam-image flex-item" rel="preload">
+          <img :src=item.gradCamImageUrl class="h-margin-5 grad-cam-image" rel="preload">
           <div class="prediction-output-summary-wrapper flex-item">
             <div class="prediction-filename">
               <span class="big-text">Filename: {{ item.filename }}</span>
             </div>
             <div>
-              <span class="big-text">Label: <span class="predicted-label">{{ item.predictedLabel }}</span></span>
+              <span class="big-text">Predicted label: <span class="predicted-label">{{ item.predictedLabel }}</span></span>
+            </div>
+            <div>
+              <span class="big-text">Assigned label: <span class="assigned-label">{{ item.assignedLabel }}</span></span>
             </div>
             <div>
               <span class="big-text">Prediction Confidence: <span class="prediction-confidence">{{ item.predictionConfidence }} %</span></span>
@@ -61,6 +68,9 @@
               <span class="big-text">Predicted Label: {{ item.predictedLabel }}</span>
             </div>
             <div>
+              <span class="big-text">Assigned Label: {{ item.assignedLabel }}</span>
+            </div>
+            <div>
               <span class="big-text">Prediction Confidence: {{ item.predictionConfidence }} %</span>
             </div>
           </div>
@@ -97,6 +107,12 @@ export default {
 </script>
 
 <style scoped lang="scss">
+
+  .space-filler-message {
+    text-align: center;
+    padding: 0.5rem;
+  }
+
   .prediction-output-row {
     display: flex;
     flex-direction: row;
@@ -112,6 +128,10 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .grad-cam-image {
+    width: 300px;
   }
 
   .prediction-output-interaction-buttons {

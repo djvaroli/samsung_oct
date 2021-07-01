@@ -10,7 +10,7 @@
         ></ImageUploadComponent>
       </div>
       <div id="prediction-control-area">
-        <PredictionOutputComponent :prediction-data=predictionData></PredictionOutputComponent>
+        <ModelPredictionsComponent :prediction-data="predictionData"></ModelPredictionsComponent>
       </div>
     </div>
   </div>
@@ -19,14 +19,14 @@
 <script>
 import Header from "./components/Header";
 import ImageUploadComponent from "./components/ImageUploadComponent";
-import PredictionOutputComponent from "./components/PredictionOutputComponent";
+import ModelPredictionsComponent from "./components/ModelPredictionsComponent";
 
 export default {
   name: 'App',
   components: {
+    Header,
     ImageUploadComponent,
-    PredictionOutputComponent,
-    Header
+    ModelPredictionsComponent
   },
   data () {
     return {
@@ -55,13 +55,19 @@ export default {
 
 #content {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-start;
 }
 
 #upload-control-area {
   max-width: 30rem;
   padding: 1rem;
   margin: 1rem 0;
+}
+
+#prediction-control-area {
+  margin: 1rem 1rem;
+  flex-grow: 3;
 }
 
 #image-upload-component {

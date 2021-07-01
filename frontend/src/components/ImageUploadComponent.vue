@@ -36,6 +36,10 @@
       Predict
     </b-button>
     <b-button class="is-danger h-margin-5" @click="clearUploadsAndResults" :disabled="loading">Clear</b-button>
+    <br>
+    <br>
+    <b-progress v-if="loading" type="is-info" size="is-small"></b-progress>
+    <div class="is-danger"> {{ uploadStatusText }}</div>
   </section>
 </template>
 
@@ -83,13 +87,22 @@ export default {
             this.loading = false;
             this.numPredictionsQueued = 0;
             this.numPredictionsCompleted = 0;
+            this.dropFiles = [];
           }
         })
       }
     },
     clearUploadsAndResults() {
       this.$emit("clear-data");
-      this.deleteDropFile(0, this.dropFiles.length);
+      this.dropFiles = [];
+    }
+  },
+  computed: {
+    uploadStatusText() {
+      if (this.numPredictionsQueued > 0) {
+        return `Predicting ${this.numPredictionsCompleted}/${this.numPredictionsQueued}`
+      }
+      return `Uploaded ${this.dropFiles.length} files.`
     }
   }
 }

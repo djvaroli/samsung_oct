@@ -8,8 +8,13 @@
   margin: 0 5px;
 }
 
+.h-margin-10 {
+  margin: 0 10px;
+}
+
+
 .big-text {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
 
 .floating-component {
@@ -17,4 +22,13 @@
   border-radius: 5px;
 }
 
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
 
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}

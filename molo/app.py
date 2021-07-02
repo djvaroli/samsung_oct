@@ -24,8 +24,8 @@ app.add_middleware(
     allow_headers=["*"]
 )
 MODEL_URI = os.environ['MODEL_URI']
-GCS_PROJECT_BUCKET = "fourth-brain-course-files"
-UPLOADED_IMAGES_GCS_PATH = Path("capstone-project/uploaded-images")
+GCS_PROJECT_BUCKET = os.environ.get("GCS_PROJECT_BUCKET")
+UPLOADED_IMAGES_GCS_PATH = Path(os.environ.get("UPLOADED_IMAGES_GCS_PATH"))
 CONFIDENCE_THRESHOLD = os.environ.get("CONFIDENCE_THRESHOLD", 80)
 
 

@@ -1,14 +1,14 @@
 from typing import *
 import os
 import tempfile
-from PIL import Image
-import datetime
+from pathlib import Path
 from datetime import datetime as dt
 
 from fpdf import FPDF
 from google.cloud import storage
 
-GCS_BUCKET = os.environ.get("GCS_BUCKET", "fourth-brain-course-files")
+GCS_PROJECT_BUCKET = os.environ.get("GCS_PROJECT_BUCKET")
+PDF_REPORTS_GCS_PATH = Path(os.environ.get("PDF_REPORTS_GCS_PATH"))
 
 
 class PDFReport(FPDF):
@@ -33,7 +33,7 @@ class PDFReport(FPDF):
     ):
         if set_logo:
             client = storage.Client()
-            bucket = client.bucket(GCS_BUCKET)
+            bucket = client.bucket(GCS_PROJECT_BUCKET)
             blob = bucket.blob("capstone-project/public/oct_eye_logo-128x128.png")
 
             _, logo_file = tempfile.mkstemp('.png')
@@ -116,10 +116,11 @@ class PDFReport(FPDF):
 
         if upload_to_gcs:
             client = storage.Client()
-            bucket = client.bucket(GCS_BUCKET)
+            bucket = client.bucket(GCS_PROJECT_BUCKET)
             date_key = dt.now().isoformat()
             report_name = f"oct_summary_report_{date_key}.pdf"
-            blob = bucket.blob(f"fourth-brain-course-files/capstone-project/pdf_reports/{report_name}")
+            pdf_report_gcs_path = PDF_REPORTS_GCS_PATH / report_name
+            blob = bucket.blob(str(pdf_report_gcs_path))
             blob.upload_from_filename(tmp_pdf)
 
             if return_signed_url:

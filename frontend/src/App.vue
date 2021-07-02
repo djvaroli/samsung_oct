@@ -2,12 +2,19 @@
   <div id="app">
     <Header></Header>
     <div id="content" class="container">
-      <div id="upload-control-area" class="floating-component">
+      <div id="upload-control-area">
         <ImageUploadComponent
             id="image-upload-component"
+            class="floating-component"
             v-on:prediction="updatePredictionData"
             v-on:clear-data="clearPredictionData"
         ></ImageUploadComponent>
+        <SummaryInfoComponent
+            id="summary-info-component"
+            class="floating-component"
+            :prediction-data="predictionData"
+        >
+        </SummaryInfoComponent>
       </div>
       <div id="prediction-control-area">
         <ModelPredictionsComponent :prediction-data="predictionData"></ModelPredictionsComponent>
@@ -20,18 +27,19 @@
 import Header from "./components/Header";
 import ImageUploadComponent from "./components/ImageUploadComponent";
 import ModelPredictionsComponent from "./components/ModelPredictionsComponent";
+import SummaryInfoComponent from "./components/SummaryInfoComponent";
 
 export default {
   name: 'App',
   components: {
     Header,
     ImageUploadComponent,
-    ModelPredictionsComponent
+    ModelPredictionsComponent,
+    SummaryInfoComponent
   },
   data () {
     return {
-      predictionData: [
-      ],
+      predictionData: [],
     }
   },
   methods: {
@@ -61,7 +69,6 @@ export default {
 
 #upload-control-area {
   max-width: 30rem;
-  padding: 1rem;
   margin: 1rem 0;
 }
 
@@ -72,5 +79,12 @@ export default {
 
 #image-upload-component {
   width: 100%;
+  padding: 1rem;
 }
+
+#summary-info-component {
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
 </style>

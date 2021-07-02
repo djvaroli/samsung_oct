@@ -75,5 +75,6 @@ async def predict_endpoint(file: UploadFile = File(...)):
         "predictedLabel": prediction['prediction'],
         "assignedLabel": prediction['prediction'],
         "predictionConfidence": prediction['confidence'],
-        "filename": file.filename
+        "filename": file.filename,
+        "isConfirmed": False
     }

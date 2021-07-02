@@ -10,7 +10,7 @@
                   size="is-large">
               </b-icon>
             </p>
-            <p>Drop your files here or click to upload</p>
+            <p>Upload OCT scans to get started.</p>
           </div>
         </section>
       </b-upload>

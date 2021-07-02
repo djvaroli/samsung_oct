@@ -18,7 +18,7 @@ export default {
 
 <style scoped>
   #model-predictions-component {
-    max-height: 40rem;
+    max-height: 50rem;
     overflow: scroll;
   }
 </style>

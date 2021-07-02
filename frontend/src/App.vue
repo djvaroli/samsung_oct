@@ -45,6 +45,9 @@ export default {
   methods: {
     updatePredictionData(data) {
       this.predictionData.push(data);
+      this.predictionData = this.predictionData.slice().sort((a, b) => {
+        return a.predictionConfidence - b.predictionConfidence
+      });
     },
     clearPredictionData() {
       this.predictionData = [];
@@ -68,6 +71,7 @@ export default {
 }
 
 #upload-control-area {
+  width: 24rem;
   max-width: 30rem;
   margin: 1rem 0;
 }

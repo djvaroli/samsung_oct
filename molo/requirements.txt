@@ -1,4 +1,5 @@
 absl-py==0.12.0
+asgiref==3.3.4
 astunparse==1.6.3
 attrs==21.2.0
 cachetools==4.2.2
@@ -8,8 +9,11 @@ chardet==4.0.0
 click==8.0.0
 configparser==5.0.2
 docker-pycreds==0.4.0
+fastapi==0.65.2
 Flask==2.0.0
+Flask-Cors==3.0.10
 flatbuffers==1.12
+fpdf==1.7.2
 gast==0.3.3
 gitdb==4.0.7
 GitPython==3.1.17
@@ -24,6 +28,7 @@ google-resumable-media==1.2.0
 googleapis-common-protos==1.53.0
 grpcio==1.32.0
 gunicorn==20.1.0
+h11==0.12.0
 h5py==2.10.0
 idna==2.10
 iniconfig==1.1.1
@@ -35,6 +40,7 @@ Markdown==3.3.4
 MarkupSafe==2.0.0
 numpy==1.19.5
 oauthlib==3.1.0
+opencv-python==4.5.2.54
 opt-einsum==3.3.0
 packaging==20.9
 pathtools==0.1.2
@@ -47,10 +53,13 @@ py==1.10.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
+pydantic==1.8.2
+pydotenv==0.0.7
 pyparsing==2.4.7
 pytest==6.2.4
 python-dateutil==2.8.1
 python-dotenv==0.17.1
+python-multipart==0.0.5
 pytz==2021.1
 PyYAML==5.4.1
 requests==2.25.1
@@ -62,6 +71,7 @@ shortuuid==1.0.1
 simplejson==3.17.2
 six==1.15.0
 smmap==4.0.0
+starlette==0.14.2
 subprocess32==3.5.4
 tensorboard==2.5.0
 tensorboard-data-server==0.6.1
@@ -73,6 +83,7 @@ termcolor==1.1.0
 toml==0.10.2
 typing-extensions==3.7.4.3
 urllib3==1.26.4
+uvicorn==0.14.0
 wandb==0.10.31
 Werkzeug==2.0.0
 wrapt==1.12.1

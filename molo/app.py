@@ -1,21 +1,18 @@
 import os
-from typing import *
-import datetime
-from datetime import datetime as dt
-import time
-from tempfile import TemporaryFile
 import tempfile
 from pathlib import Path
+import random
 
 from dotenv import load_dotenv
-from PIL import Image
-import numpy as np
 import cv2
 from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 
 
 from utils import image_utils, serving_utils, gcs_utils
+from utils.pdf_utils import PDFReport
+
+from molo.helpers.request_schemas import GeneratePDFReportSchema
 
 load_dotenv()
 app = FastAPI()
@@ -29,6 +26,7 @@ app.add_middleware(
 MODEL_URI = os.environ['MODEL_URI']
 GCS_PROJECT_BUCKET = "fourth-brain-course-files"
 UPLOADED_IMAGES_GCS_PATH = Path("capstone-project/uploaded-images")
+CONFIDENCE_THRESHOLD = os.environ.get("CONFIDENCE_THRESHOLD", 80)
 
 
 @app.get("/")
@@ -76,5 +74,26 @@ async def predict_endpoint(file: UploadFile = File(...)):
         "assignedLabel": prediction['prediction'],
         "predictionConfidence": prediction['confidence'],
         "filename": file.filename,
-        "isConfirmed": False
+        "isConfirmed": prediction['confidence'] >= CONFIDENCE_THRESHOLD
+    }
+
+
+@app.post('/report')
+async def generate_pdf_report_endpoint(
+    data: GeneratePDFReportSchema
+):
+    # remove and clean up some of the fields
+    for item in data.predictionData:
+        item.pop('uploadedImageUrl', None)
+        item.pop('gradCamImageUrl', None)
+        item.pop('predictedLabel', None)
+        item.pop('isConfirmed', None)
+        item['assigned label'] = item.pop('assignedLabel', "Null")
+        item['prediction confidence'] = item.pop('predictionConfidence', 0.0)
+
+    pdf_report = PDFReport()
+    signed_url = pdf_report.generate_report(prediction_data=data.predictionData)
+
+    return {
+        "reportUrl": signed_url
     }

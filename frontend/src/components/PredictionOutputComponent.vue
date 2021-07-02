@@ -23,7 +23,12 @@
                 Assigned label:  <span class="assigned-label" v-bind:class="{'assigned-label-confirmed': item.isConfirmed}">{{ item.assignedLabel }}</span></span>
             </div>
             <div>
-              <span class="big-text">Prediction Confidence: <span class="prediction-confidence">{{ item.predictionConfidence }} %</span></span>
+              <span class="big-text">
+                Prediction Confidence:
+                <span v-bind:class="(item.predictionConfidence < confidenceThreshold)?'prediction-confidence-low':'prediction-confidence-high'">
+                  {{ item.predictionConfidence }} %
+                </span>
+              </span>
             </div>
             <br>
             <div class="prediction-output-interaction-buttons">
@@ -96,6 +101,7 @@ export default {
   props: ["predictionData"],
   data () {
     return {
+      confidenceThreshold: 80
     }
   },
   methods: {
@@ -161,8 +167,15 @@ export default {
     color: white;
   }
 
-  .prediction-confidence {
+  .prediction-confidence-low {
     background: #f32159f0;
+    padding: 0.1rem;
+    border-radius: 3px;
+    color: white;
+  }
+
+  .prediction-confidence-high {
+    background: #48c774;
     padding: 0.1rem;
     border-radius: 3px;
     color: white;

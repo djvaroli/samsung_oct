@@ -14,10 +14,13 @@
               <span class="big-text">Filename: {{ item.filename }}</span>
             </div>
             <div>
-              <span class="big-text">Predicted label: <span class="predicted-label">{{ item.predictedLabel }}</span></span>
+              <span class="big-text">
+                Predicted label: <span class="predicted-label">{{ item.predictedLabel }}</span>
+              </span>
             </div>
             <div>
-              <span class="big-text">Assigned label: <span class="assigned-label">{{ item.assignedLabel }}</span></span>
+              <span class="big-text">
+                Assigned label:  <span class="assigned-label" v-bind:class="{'assigned-label-confirmed': item.isConfirmed}">{{ item.assignedLabel }}</span></span>
             </div>
             <div>
               <span class="big-text">Prediction Confidence: <span class="prediction-confidence">{{ item.predictionConfidence }} %</span></span>
@@ -27,8 +30,8 @@
               <br>
               <div class="select-alternate-class-buttons">
                 <b-button
-                    class="is-primary lex-item"
-                    v-bind:class="{'is-outlined' : item.predictedLabel !== 'Normal'}"
+                    class="is-primary flex-item"
+                    v-bind:class="{'is-outlined' : item.assignedLabel !== 'Normal'}"
                     @click="() => reassignLabel(i, 'Normal')"
                 >
                   Normal
@@ -36,28 +39,28 @@
                 <b-button
                     class="is-primary flex-item"
                     @click="() => reassignLabel(i, 'DRUSEN')"
-                    v-bind:class="{'is-outlined' : item.predictedLabel !== 'DRUSEN'}"
+                    v-bind:class="{'is-outlined' : item.assignedLabel !== 'DRUSEN'}"
                 >
                   DRUSEN
                 </b-button>
                 <b-button
                     class="is-primary flex-item"
                     @click="() => reassignLabel(i, 'CNV')"
-                    v-bind:class="{'is-outlined' : item.predictedLabel !== 'CNV'}"
+                    v-bind:class="{'is-outlined' : item.assignedLabel !== 'CNV'}"
                 >
                   CNV
                 </b-button>
                 <b-button
                     class="is-primary flex-item"
                     @click="() => reassignLabel(i, 'DME')"
-                    v-bind:class="{'is-outlined' : item.predictedLabel !== 'DME'}"
+                    v-bind:class="{'is-outlined' : item.assignedLabel !== 'DME'}"
                 >
                   DME
                 </b-button>
               </div>
               <br>
               <div class="confirm-prediction-button">
-                <b-button class="is-success">Confirm label</b-button>
+                <b-button class="is-success" @click="() => confirmLabel(i)">Confirm label</b-button>
               </div>
             </div>
           </div>
@@ -97,7 +100,11 @@ export default {
   },
   methods: {
     reassignLabel(index, label) {
-      this.predictionData[index].predictedLabel = label;
+      this.predictionData[index].assignedLabel = label;
+      this.predictionData[index].isConfirmed = false;
+    },
+    confirmLabel(index) {
+      this.predictionData[index].isConfirmed = true;
     },
     expandCard(index) {
       this.predictionData[index].isCollapsed = false;
@@ -140,8 +147,15 @@ export default {
     flex-direction: column;
   }
 
-  .predicted-label {
+  .assigned-label {
     background: #2196f3;
+    padding: 0.1rem;
+    border-radius: 3px;
+    color: white;
+  }
+
+  .assigned-label-confirmed {
+    background: #48c774;
     padding: 0.1rem;
     border-radius: 3px;
     color: white;

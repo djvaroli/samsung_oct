@@ -1,3 +1,4 @@
 #!/bin/bash
 
-gunicorn app:app -w 2 --threads 2 -b 0.0.0.0:8003
+[ -z "${PORT}" ] && export PORT=8003
+uvicorn app:app -p $PORT

@@ -5,15 +5,17 @@ services:
       context: ./
       dockerfile: molo/Dockerfile
     ports:
-      - 8003:8003
+      - "localhost:8003":"8003"
+    env_file:
+      - ./.env
     depends_on:
       - "frontend"
   frontend:
     build:
-      context: ./
-      dockerfile: frontend/Dockerfile
+      context: ./frontend/
+      dockerfile: Dockerfile
     ports:
     - 80:80
-    environment:
-      - BASE_URL=${BASE_URL}
+    env_file:
+      - ./.env
     command: ["nginx", "-g", "daemon off;"]

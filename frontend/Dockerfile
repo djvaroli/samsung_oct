@@ -1,7 +1,11 @@
 # build stage, here we build the vue app with yarn
 FROM node:lts-alpine as build-stage
 WORKDIR /app
-COPY package*.json ./
+
+# set the app server url
+ENV VUE_APP_SERVER_URL=$VUE_APP_SERVER_URL
+
+COPY package*.json .
 RUN yarn install
 COPY . .
 RUN yarn build

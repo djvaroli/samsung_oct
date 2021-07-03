@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from utils import image_utils, serving_utils, gcs_utils
 from utils.pdf_utils import PDFReport
 
-from molo.helpers.request_schemas import GeneratePDFReportSchema
+from helpers.request_schemas import GeneratePDFReportSchema
 
 load_dotenv()
 app = FastAPI()

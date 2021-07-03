@@ -20,7 +20,13 @@
             </div>
             <div>
               <span class="big-text">
-                Assigned label:  <span class="assigned-label" v-bind:class="{'assigned-label-confirmed': item.isConfirmed}">{{ item.assignedLabel }}</span></span>
+                Assigned label:
+                <span
+                    class="assigned-label"
+                    v-bind:class="{'assigned-label-confirmed': item.isConfirmed === 'true'}">
+                  {{ item.assignedLabel }}
+                </span>
+              </span>
             </div>
             <div>
               <span class="big-text">
@@ -107,13 +113,13 @@ export default {
   methods: {
     reassignLabel(index, label) {
       this.predictionData[index].assignedLabel = label;
-      this.predictionData[index].isConfirmed = false;
+      this.predictionData[index].isConfirmed = "false";
     },
     confirmLabel(index) {
-      this.predictionData[index].isConfirmed = true;
+      this.predictionData[index].isConfirmed = "true";
     },
     expandCard(index) {
-      this.predictionData[index].isCollapsed = false;
+      this.predictionData[index].isCollapsed = "false";
     }
   }
 }

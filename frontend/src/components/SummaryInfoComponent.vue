@@ -49,7 +49,7 @@ export default {
       let value = 0;
       if (this.predictionData.length > 0) {
         for (let i = 0; i < this.predictionData.length; i++) {
-          if (this.predictionData[i].isConfirmed) value += 1;
+          if (this.predictionData[i].isConfirmed === 'true') value += 1;
         }
       }
       return value

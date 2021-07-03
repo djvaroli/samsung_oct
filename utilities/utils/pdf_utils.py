@@ -7,6 +7,7 @@ from datetime import datetime as dt
 from fpdf import FPDF
 from google.cloud import storage
 
+
 GCS_PROJECT_BUCKET = os.environ.get("GCS_PROJECT_BUCKET")
 PDF_REPORTS_GCS_PATH = Path(os.environ.get("PDF_REPORTS_GCS_PATH"))
 

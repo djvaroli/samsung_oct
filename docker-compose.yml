@@ -1,4 +1,4 @@
-version: "2"
+version: "3.7"
 services:
   molo:
     build:
@@ -6,14 +6,14 @@ services:
       dockerfile: molo/Dockerfile
     ports:
       - 8003:8003
-  prediction-model:
-    image: tensorflow/serving
+    depends_on:
+      - "frontend"
+  frontend:
+    build:
+      context: ./
+      dockerfile: frontend/Dockerfile
     ports:
-      - 8500:8500
-      - 8501:8501
-    volumes:
-      - './models:/models'
-    command:
-      - '--model_config_file=/models/models.config'
-      - '--model_config_file_poll_wait_seconds=60'
-      - '--allow_version_labels_for_unavailable_models=true'
+    - 80:80
+    environment:
+      - BASE_URL=${BASE_URL}
+    command: ["nginx", "-g", "daemon off;"]

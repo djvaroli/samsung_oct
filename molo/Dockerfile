@@ -1,18 +1,19 @@
-FROM python:3.8-slim-buster
+FROM python:3.8-slim-buster as build-stage
 
-COPY ./molo/ /molo/
-WORKDIR molo
+COPY ./molo .
+COPY ./utilities ./utilities
 
-COPY ./requirements.txt requirements.txt
-COPY ./utilities /utilities
-
+# install required python packages
 RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install ./utilities
+
+# the actual app stuff
+COPY ./model_weights /model_weights
 RUN python3 -m pip install -r requirements.txt
-RUN python3 -m pip install /utilities/
 
-ENV FLASK_DEBUG=False
-EXPOSE 8003
+# need to run these updates for cv2 to work
+RUN apt-get update
+RUN apt-get install ffmpeg libsm6 libxext6  -y
 
-# we need this to make the entrypoint script executable, otherwise we'll get a permissions error
-RUN ["chmod", "+x", "/molo/scripts/entrypoint.sh"]
-ENTRYPOINT ["/molo/scripts/entrypoint.sh"]
+# run the app
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

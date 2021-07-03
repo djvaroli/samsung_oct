@@ -15,8 +15,9 @@ MESSAGE_OPTIONS = [('grpc.max_message_length', 200 * 1024 * 1024),
 
 CLASS_LABELS = {"CNV": 0, "DME": 1, "DRUSEN": 2, "NORMAL": 3}
 CLASS_LABELS_INVERTED = {val: key for key, val in CLASS_LABELS.items()}
+MODEL_WEIGHTS = "model_weights/vgg16_weights_tf_dim_ordering_tf_kernels.h5"
 
-model = tf.keras.applications.vgg16.VGG16(weights='imagenet', include_top=True)
+model = tf.keras.applications.vgg16.VGG16(weights=MODEL_WEIGHTS, include_top=True)
 grad_model = tf.keras.models.Model([model.inputs], [model.get_layer("block5_conv3").output, model.output])
 
 

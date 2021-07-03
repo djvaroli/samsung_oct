@@ -137,3 +137,6 @@ dmypy.json
 
 # secrets
 molo/secrets
+
+# model weights
+model_weights

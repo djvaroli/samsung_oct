@@ -82,6 +82,17 @@ export default {
         )
         .then( (response) => {
           this.$emit("prediction", response.data);
+        })
+        .catch( () => {
+          this.$buefy.toast.open({
+            message: "An error occurred for one of the requests.",
+            type: "is-danger",
+            location: "is-bottom-left",
+            duration: 2000,
+            queue: true
+          })
+        })
+        .finally( () => {
           this.numPredictionsCompleted += 1;
           if (this.numPredictionsCompleted === this.numPredictionsQueued) {
             this.loading = false;

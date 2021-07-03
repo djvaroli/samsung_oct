@@ -1,24 +1,22 @@
 import os
 import tempfile
 from pathlib import Path
-import random
 
 from dotenv import load_dotenv
 import cv2
-from fastapi import FastAPI, Request, UploadFile, File
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 
 
 from utils import image_utils, serving_utils, gcs_utils
 from utils.pdf_utils import PDFReport
-
 from helpers.request_schemas import GeneratePDFReportSchema
 
 load_dotenv()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost", "http://localhost:8080"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
@@ -34,7 +32,7 @@ async def home():
     """
     :return:
     """
-    return "Status: Healthy!"
+    return {"status": "ok"}
 
 
 @app.post('/predict')
@@ -67,15 +65,16 @@ async def predict_endpoint(file: UploadFile = File(...)):
     )
     grad_cam_url = grad_cam_blob.generate_signed_url(expiration=604800, version='v4')
 
-    return {
+    response = {
         "uploadedImageUrl": image_url,
         "gradCamImageUrl": grad_cam_url,
         "predictedLabel": prediction['prediction'],
         "assignedLabel": prediction['prediction'],
         "predictionConfidence": prediction['confidence'],
         "filename": file.filename,
-        "isConfirmed": prediction['confidence'] >= CONFIDENCE_THRESHOLD
+        "isConfirmed": str(prediction['confidence'] >= CONFIDENCE_THRESHOLD).lower()
     }
+    return response
 
 
 @app.post('/report')
@@ -92,8 +91,6 @@ async def generate_pdf_report_endpoint(
         item['prediction confidence'] = item.pop('predictionConfidence', 0.0)
 
     pdf_report = PDFReport()
-    signed_url = pdf_report.generate_report(prediction_data=data.predictionData)
-
     return {
-        "reportUrl": signed_url
+        "reportUrl":  pdf_report.generate_report(prediction_data=data.predictionData)
     }

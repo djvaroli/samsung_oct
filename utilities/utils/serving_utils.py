@@ -1,4 +1,5 @@
 import grpc
+import os
 import simplejson as json
 from typing import *
 
@@ -15,9 +16,17 @@ MESSAGE_OPTIONS = [('grpc.max_message_length', 200 * 1024 * 1024),
 
 CLASS_LABELS = {"CNV": 0, "DME": 1, "DRUSEN": 2, "NORMAL": 3}
 CLASS_LABELS_INVERTED = {val: key for key, val in CLASS_LABELS.items()}
-MODEL_WEIGHTS = "model_weights/vgg16_weights_tf_dim_ordering_tf_kernels.h5"
 
-model = tf.keras.applications.vgg16.VGG16(weights=MODEL_WEIGHTS, include_top=True)
+
+# load the pretrained vgg16 model either from existing weights or download weights
+def _load_vgg16_model():
+    weights = "model_weights/vgg16_weights_tf_dim_ordering_tf_kernels.h5"
+    if not os.path.isfile(weights):
+        weights = "imagenet"
+    return tf.keras.applications.vgg16.VGG16(weights=weights, include_top=True)
+
+
+model = _load_vgg16_model()
 grad_model = tf.keras.models.Model([model.inputs], [model.get_layer("block5_conv3").output, model.output])
 
 

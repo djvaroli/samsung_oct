@@ -8,8 +8,11 @@ from fpdf import FPDF
 from google.cloud import storage
 
 
-GCS_PROJECT_BUCKET = os.environ.get("GCS_PROJECT_BUCKET")
-PDF_REPORTS_GCS_PATH = Path(os.environ.get("PDF_REPORTS_GCS_PATH"))
+# GCS_PROJECT_BUCKET = os.environ.get("GCS_PROJECT_BUCKET")
+# PDF_REPORTS_GCS_PATH = Path(os.environ.get("PDF_REPORTS_GCS_PATH"))
+
+GCS_PROJECT_BUCKET = "fourth-brain-course-files"
+PDF_REPORTS_GCS_PATH = Path("capstone-project/pdf_reports")
 
 
 class PDFReport(FPDF):
@@ -27,13 +30,14 @@ class PDFReport(FPDF):
             format: str = "A4"
     ):
         super(PDFReport, self).__init__(orientation=orientation, unit=unit, format=format)
+        self.gcs_client = storage.Client()
 
     def set_header(
             self,
             set_logo: bool = True
     ):
         if set_logo:
-            client = storage.Client()
+            client = self.gcs_client
             bucket = client.bucket(GCS_PROJECT_BUCKET)
             blob = bucket.blob("capstone-project/public/oct_eye_logo-128x128.png")
 
@@ -125,7 +129,7 @@ class PDFReport(FPDF):
         self.output(tmp_pdf)
 
         if upload_to_gcs:
-            client = storage.Client()
+            client = self.gcs_client
             bucket = client.bucket(GCS_PROJECT_BUCKET)
             date_key = dt.now().isoformat()
             report_name = f"oct_summary_report_{date_key}.pdf"
@@ -134,5 +138,5 @@ class PDFReport(FPDF):
             blob.upload_from_filename(tmp_pdf)
 
             if return_url:
-                return blob.self_link
+                return blob.media_link
 

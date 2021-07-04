@@ -46,7 +46,7 @@ async def predict_endpoint(file: UploadFile = File(...)):
     blob = gcs_utils.upload_to_gcs_from_file(file.file, gcs_bucket, str(file_save_path), return_blob=True)
 
     # get the url of the blob
-    image_url = blob.self_link
+    image_url = blob.media_link
 
     # process the image to be in the right format and get model predictions, as well as the GradCam output
     img = image_utils.bytes_to_numpy_array(blob.download_as_bytes())
@@ -62,7 +62,7 @@ async def predict_endpoint(file: UploadFile = File(...)):
     grad_cam_blob = gcs_utils.upload_to_gcs_from_filename(
         gcs_file, gcs_bucket, str(grad_cam_filepath), return_blob=True
     )
-    grad_cam_url = grad_cam_blob.self_link
+    grad_cam_url = grad_cam_blob.media_link
 
     response = {
         "uploadedImageUrl": image_url,

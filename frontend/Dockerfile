@@ -11,7 +11,7 @@ RUN yarn build
 # production stage, here we serve the app with Nginx
 FROM nginx:stable-alpine as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
-COPY ./scripts/run.sh .
+COPY ./scripts/start.sh .
 COPY ./.nginx/ .nginx/
 
 # add the bash command which doesn't come with Alpine images

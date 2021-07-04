@@ -1,7 +1,7 @@
 # Detecting Ocular Myopathy with Deep Learning from OCT Patient Scans
 
 ![MIT](https://img.shields.io/github/license/djvaroli/samsung_oct)
-[![Python 3.8](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
 
 
 ## About

@@ -10,7 +10,6 @@ click==8.0.0
 configparser==5.0.2
 docker-pycreds==0.4.0
 fastapi==0.65.2
-Flask-Cors==3.0.10
 flatbuffers==1.12
 fpdf==1.7.2
 gast==0.3.3
@@ -68,7 +67,6 @@ six==1.15.0
 smmap==4.0.0
 starlette==0.14.2
 subprocess32==3.5.4
-tensorboard==2.5.0
 tensorflow==2.4.1
 tensorflow-estimator==2.4.0
 tensorflow-serving-api==2.4.1

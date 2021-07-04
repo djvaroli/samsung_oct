@@ -16,5 +16,5 @@ RUN apt-get install ffmpeg libsm6 libxext6  -y
 
 # run the app
 # change permissions of our script so that we can run it in the container
-RUN ["chmod", "+x", "./scripts/entrypoint.sh"]
-CMD ["/bin/bash", "./scripts/entrypoint.sh"]
+RUN ["chmod", "+x", "./scripts/start.sh"]
+CMD ["/bin/bash", "./scripts/start.sh"]

@@ -104,8 +104,17 @@ class PDFReport(FPDF):
             prediction_data: List[dict],
             title: str = "OCT Prediction Summary Report.",
             upload_to_gcs: bool = True,
-            return_signed_url: bool = True
+            return_url: bool = True
     ) -> Union[None, str]:
+        """
+        Generates a pdf report with prediction data, stores in GCS
+        if specified returns the url to the object in GCS
+        :param prediction_data:
+        :param title:
+        :param upload_to_gcs:
+        :param return_url:
+        :return:
+        """
         self.add_page()
         self.set_header()
         self.set_title(title)
@@ -120,11 +129,10 @@ class PDFReport(FPDF):
             bucket = client.bucket(GCS_PROJECT_BUCKET)
             date_key = dt.now().isoformat()
             report_name = f"oct_summary_report_{date_key}.pdf"
-            pdf_report_gcs_path = PDF_REPORTS_GCS_PATH / report_name
-            blob = bucket.blob(str(pdf_report_gcs_path))
+            pdf_report_gcs_path = str(PDF_REPORTS_GCS_PATH / report_name)
+            blob = bucket.blob(pdf_report_gcs_path)
             blob.upload_from_filename(tmp_pdf)
 
-            if return_signed_url:
-                signed_url = blob.generate_signed_url(expiration=604800, version='v4')
-                return signed_url
+            if return_url:
+                return blob.self_link
 

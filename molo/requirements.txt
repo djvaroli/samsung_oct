@@ -10,7 +10,6 @@ click==8.0.0
 configparser==5.0.2
 docker-pycreds==0.4.0
 fastapi==0.65.2
-Flask-Cors==3.0.10
 flatbuffers==1.12
 fpdf==1.7.2
 gast==0.3.3
@@ -76,6 +75,5 @@ toml==0.10.2
 typing-extensions==3.7.4.3
 urllib3==1.26.4
 uvicorn==0.14.0
-wandb==0.10.31
 Werkzeug==2.0.0
 wrapt==1.12.1

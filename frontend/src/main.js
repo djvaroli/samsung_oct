@@ -8,7 +8,7 @@ import VueAxios from "vue-axios";
 Vue.use(Buefy)
 Vue.use(VueAxios, axios)
 console.log(process.env);
-Vue.axios.defaults.baseURL = "http://127.0.0.1:8000"
+Vue.axios.defaults.baseURL = process.env.VUE_APP_SERVER_URL;
 
 Vue.config.productionTip = false
 

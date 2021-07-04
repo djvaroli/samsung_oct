@@ -16,4 +16,6 @@ RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6  -y
 
 # run the app
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+# change permissions of our script so that we can run it in the container
+RUN ["chmod", "+x", "./entrypoint.sh"]
+CMD ["/bin/bash", "./entrypoint.sh"]

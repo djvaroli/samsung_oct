@@ -68,7 +68,6 @@ six==1.15.0
 smmap==4.0.0
 starlette==0.14.2
 subprocess32==3.5.4
-tensorboard==2.5.0
 tensorflow==2.4.1
 tensorflow-estimator==2.4.0
 tensorflow-serving-api==2.4.1
@@ -77,5 +76,6 @@ toml==0.10.2
 typing-extensions==3.7.4.3
 urllib3==1.26.4
 uvicorn==0.14.0
+wandb==0.10.31
 Werkzeug==2.0.0
 wrapt==1.12.1

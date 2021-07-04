@@ -6,6 +6,10 @@ from typing import *
 from google.cloud import storage
 
 
+# create a reusable client instead of opening up a new one each time
+STORAGE_CLIENT = storage.Client()
+
+
 def upload_to_gcs_from_file(
         file,
         bucket_name: str,
@@ -20,7 +24,7 @@ def upload_to_gcs_from_file(
     :param return_blob:
     :return:
     """
-    client = storage.Client()
+    client = STORAGE_CLIENT
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(file_save_path)
     blob.upload_from_file(file)
@@ -43,7 +47,7 @@ def upload_to_gcs_from_filename(
     :param return_blob:
     :return:
     """
-    client = storage.Client()
+    client = STORAGE_CLIENT
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(file_save_path)
     blob.upload_from_filename(filename)

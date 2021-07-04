@@ -134,3 +134,9 @@ dmypy.json
 # large data files
 *_data
 *.zip
+
+# secrets
+molo/secrets
+
+# model weights
+model_weights

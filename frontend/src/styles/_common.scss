@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
+
+.flex-item {
+  margin: 0 5px;
+}
+
+.h-margin-5 {
+  margin: 0 5px;
+}
+
+.h-margin-10 {
+  margin: 0 10px;
+}
+
+
+.big-text {
+  font-size: 1.5rem;
+}
+
+.medium-text {
+  font-size: 1.1rem;
+}
+
+.is-info-text {
+  color: #1469ff;
+}
+
+.is-danger-text {
+  color: red;
+}
+
+.is-success-text {
+  color: #48c774;
+}
+
+
+.floating-component {
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}

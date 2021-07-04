@@ -1,0 +1,19 @@
+worker_processes auto;
+daemon off;
+
+events {
+    worker_connections 1024;
+}
+
+http{
+    include /etc/nginx/mime.types;
+
+    server {
+        listen $PORT;
+
+        location / {
+            root /usr/share/nginx/html;
+            try_files $uri $uri.html $uri/ /index.html;
+        }
+    }
+}

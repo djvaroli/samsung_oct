@@ -1,66 +1,95 @@
 import os
+import tempfile
+from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request
-from werkzeug.utils import secure_filename
+import cv2
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+load_dotenv()  # load the env vars before further imports
 
-from utils import image_utils, serving_utils
+from utils import image_utils, serving_utils, gcs_utils
+from utils.pdf_utils import PDFReport
+from helpers.request_schemas import GeneratePDFReportSchema
 
-load_dotenv()
-app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
-app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
-app.config['UPLOAD_PATH'] = 'uploads'
-MODEL_URI = "prediction-model:8500"
-# MODEL_URI = "0.0.0.0:8500"
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost", "http://localhost:8080"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+MODEL_URI = os.environ['MODEL_URI']
+GCS_PROJECT_BUCKET = os.environ.get("GCS_PROJECT_BUCKET")
+UPLOADED_IMAGES_GCS_PATH = Path(os.environ.get("UPLOADED_IMAGES_GCS_PATH"))
+CONFIDENCE_THRESHOLD = os.environ.get("CONFIDENCE_THRESHOLD", 80)
 
-CACHED_PREDICTIONS = {}
 
-
-@app.errorhandler(413)
-def too_large(e):
+@app.get("/")
+async def home():
     """
-
-    :param e:
     :return:
     """
-    return "File is too large", 413
+    return {"status": "ok"}
 
 
-@app.route("/", methods=['GET'])
-def home():
+@app.post('/predict')
+async def predict_endpoint(file: UploadFile = File(...)):
     """
-
     :return:
     """
-    files = os.listdir(app.config['UPLOAD_PATH'])
-    return render_template("index.html", files=files)
+    # create google storage client and upload file to bucket
+    # we need to store the file in the cloud so that we can display it on the frontend
+    file_save_path = UPLOADED_IMAGES_GCS_PATH / file.filename
+    gcs_bucket = GCS_PROJECT_BUCKET
+    blob = gcs_utils.upload_to_gcs_from_file(file.file, gcs_bucket, str(file_save_path), return_blob=True)
 
+    # create a signed url so that only the user in this session can view this file
+    image_url = blob.generate_signed_url(expiration=604800, version='v4')
 
-@app.route('/predict/cache', methods=['POST'])
-def cache_predict_image_class():
-    """
+    # process the image to be in the right format and get model predictions, as well as the GradCam output
+    img = image_utils.bytes_to_numpy_array(blob.download_as_bytes())
+    img = image_utils.prepare_image_for_prediction(img, reshape_size=(224, 224))
 
-    :return:
-    """
-    img = image_utils.uploaded_image_to_array(request.files['file'])
-    filename = secure_filename(request.files['file'].filename)
-    model_input_shape = serving_utils.get_input_shape(MODEL_URI, model_name="dense_net")
-    img = image_utils.resize_image(img, model_input_shape[:-1])
-    img = image_utils.normalize_image(img)
-    img = image_utils.make_image_into_batch(img)
-    class_, prob_ = serving_utils.predict_ocular_myopathy_class(img, MODEL_URI, model_name="dense_net", timeout=3.0)
-    CACHED_PREDICTIONS[filename] = {
-        "class": class_,
-        "probability": round(prob_, 4)
+    # get the predicted label and the GradCam heatmap
+    prediction, grad_cam_array = serving_utils.get_output_and_grad_cam_map(img)
+
+    # save the generated GradCam heatmap and generate a signed url to display on the frontend
+    _, gcs_file = tempfile.mkstemp('.png')
+    cv2.imwrite(gcs_file, grad_cam_array)
+    grad_cam_filepath = UPLOADED_IMAGES_GCS_PATH / f"GC-{file.filename}"
+    grad_cam_blob = gcs_utils.upload_to_gcs_from_filename(
+        gcs_file, gcs_bucket, str(grad_cam_filepath), return_blob=True
+    )
+    grad_cam_url = grad_cam_blob.generate_signed_url(expiration=604800, version='v4')
+
+    response = {
+        "uploadedImageUrl": image_url,
+        "gradCamImageUrl": grad_cam_url,
+        "predictedLabel": prediction['prediction'],
+        "assignedLabel": prediction['prediction'],
+        "predictionConfidence": prediction['confidence'],
+        "filename": file.filename,
+        "isConfirmed": str(prediction['confidence'] >= CONFIDENCE_THRESHOLD).lower()
     }
-    return '', 204
+    return response
 
 
-@app.route('/predict/results', methods=['GET'])
-def get_cached_predictions():
-    """
+@app.post('/report')
+async def generate_pdf_report_endpoint(
+    data: GeneratePDFReportSchema
+):
+    # remove and clean up some of the fields
+    for item in data.predictionData:
+        item.pop('uploadedImageUrl', None)
+        item.pop('gradCamImageUrl', None)
+        item.pop('predictedLabel', None)
+        item.pop('isConfirmed', None)
+        item['assigned label'] = item.pop('assignedLabel', "Null")
+        item['prediction confidence'] = item.pop('predictionConfidence', 0.0)
 
-    :return:
-    """
-    return CACHED_PREDICTIONS
+    pdf_report = PDFReport()
+    return {
+        "reportUrl":  pdf_report.generate_report(prediction_data=data.predictionData)
+    }

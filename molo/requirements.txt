@@ -77,6 +77,5 @@ toml==0.10.2
 typing-extensions==3.7.4.3
 urllib3==1.26.4
 uvicorn==0.14.0
-wandb==0.10.31
 Werkzeug==2.0.0
 wrapt==1.12.1

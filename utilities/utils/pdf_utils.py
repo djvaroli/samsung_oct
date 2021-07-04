@@ -138,5 +138,9 @@ class PDFReport(FPDF):
             blob.upload_from_filename(tmp_pdf)
 
             if return_url:
-                return blob.media_link
+                return f"https://storage.googleapis.com/{GCS_PROJECT_BUCKET}/{blob.name}"
+
+
+r = PDFReport()
+b = r.generate_report([{"data": "Data"}])
 

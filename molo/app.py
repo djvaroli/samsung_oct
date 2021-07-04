@@ -6,13 +6,12 @@ from dotenv import load_dotenv
 import cv2
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-
+load_dotenv()  # load the env vars before further imports
 
 from utils import image_utils, serving_utils, gcs_utils
 from utils.pdf_utils import PDFReport
 from helpers.request_schemas import GeneratePDFReportSchema
 
-load_dotenv()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,

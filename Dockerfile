@@ -8,7 +8,6 @@ RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install ./utilities
 
 # the actual app stuff
-COPY ./model_weights /model_weights
 RUN python3 -m pip install -r requirements.txt
 
 # need to run these updates for cv2 to work

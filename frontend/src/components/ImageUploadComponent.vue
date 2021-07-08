@@ -38,12 +38,17 @@
     <b-button class="is-danger h-margin-5" @click="clearUploadsAndResults" :disabled="loading">Clear</b-button>
     <br>
     <br>
-    <b-field>
-      <b-switch v-model="useTFLite"
-                type="is-success">
-        Use TF Lite
-      </b-switch>
-    </b-field>
+    <b-tooltip label="TF Lite models are less resource-intensive."
+               type="is-primary is-light"
+               position="is-right">
+      <b-field>
+        <b-switch v-model="useTFLite"
+                  type="is-success">
+          Use TF Lite
+        </b-switch>
+      </b-field>
+    </b-tooltip>
+    <br>
     <br>
     <b-progress v-if="loading" type="is-info" size="is-small"></b-progress>
     <div class="is-danger"> {{ uploadStatusText }}</div>

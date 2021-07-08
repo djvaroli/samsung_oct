@@ -14,6 +14,7 @@
       <br>
       <b-tooltip
           label="All uncertain predictions must be verified first."
+          type="is-primary is-light"
           position="is-bottom"
           :active="numConfirmed() < numTotal"
           id="buttonTooltip"

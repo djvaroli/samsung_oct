@@ -38,6 +38,18 @@
     <b-button class="is-danger h-margin-5" @click="clearUploadsAndResults" :disabled="loading">Clear</b-button>
     <br>
     <br>
+    <b-tooltip label="TF Lite models are less resource-intensive."
+               type="is-primary is-light"
+               position="is-right">
+      <b-field>
+        <b-switch v-model="useTFLite"
+                  type="is-success">
+          Use TF Lite
+        </b-switch>
+      </b-field>
+    </b-tooltip>
+    <br>
+    <br>
     <b-progress v-if="loading" type="is-info" size="is-small"></b-progress>
     <div class="is-danger"> {{ uploadStatusText }}</div>
   </section>
@@ -51,7 +63,8 @@ export default {
       dropFiles: [],
       loading: false,
       numPredictionsQueued: 0,
-      numPredictionsCompleted: 0
+      numPredictionsCompleted: 0,
+      useTFLite: true
     }
   },
   methods: {
@@ -65,7 +78,12 @@ export default {
       // loop over every file and dispatch request
       for (let i = 0; i < this.dropFiles.length; i++) {
         let formData = new FormData();
+        let model;
+        if (this.useTFLite === true) model = 'tf-lite'
+        else model = "ai-platform"
+
         formData.append('file', this.dropFiles[i]);
+        formData.append('model', model);
 
         // for display to user
         this.loading = true;
@@ -82,6 +100,8 @@ export default {
         )
         .then( (response) => {
           this.$emit("prediction", response.data);
+          console.log(response.data.inferenceTime);
+          console.log(model);
         })
         .catch( () => {
           this.$buefy.toast.open({

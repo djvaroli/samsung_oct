@@ -2,6 +2,7 @@ import grpc
 import os
 import simplejson as json
 from typing import *
+import logging
 
 import numpy as np
 import tensorflow as tf
@@ -164,6 +165,8 @@ def predict_lite_model(
     predicted_class = CLASS_LABELS_INVERTED.get(np.argmax(scores))
     confidence = np.round(np.max(scores), 4) * 100
 
+    logging.warning(f"{scores}, {np.argmax(scores)}, {confidence}")
+
     return predicted_class, confidence
 
 
@@ -186,5 +189,7 @@ def predict_ai_platform(
     scores = predict_json(project, region, model, inputs, version)
     predicted_class = CLASS_LABELS_INVERTED.get(np.argmax(scores))
     confidence = np.round(np.max(scores), 4) * 100
+
+    logging.warning(f"{scores}, {np.argmax(scores)}, {confidence}")
 
     return predicted_class, confidence

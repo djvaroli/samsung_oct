@@ -35,7 +35,10 @@ async def home():
 
 
 @app.post('/predict')
-async def predict_endpoint(file: UploadFile = File(...)):
+async def predict_endpoint(
+        file: UploadFile = File(...),
+        model: str = "ai-platform"
+):
     """
     :return:
     """
@@ -52,27 +55,23 @@ async def predict_endpoint(file: UploadFile = File(...)):
     img = image_utils.bytes_to_numpy_array(blob.download_as_bytes())
     img = image_utils.prepare_image_for_prediction(img, reshape_size=(224, 224))
 
-    # get the predicted label and the GradCam heatmap
-    prediction, grad_cam_array = serving_utils.get_output_and_grad_cam_map(img)
-
-    # save the generated GradCam heatmap and generate a signed url to display on the frontend
-    _, gcs_file = tempfile.mkstemp('.png')
-    cv2.imwrite(gcs_file, grad_cam_array)
-    grad_cam_filepath = UPLOADED_IMAGES_GCS_PATH / f"GC-{file.filename}"
-    grad_cam_blob = gcs_utils.upload_to_gcs_from_filename(
-        gcs_file, gcs_bucket, str(grad_cam_filepath), return_blob=True
-    )
-    grad_cam_url = grad_cam_blob.media_link
+    if model == "ai-platform":
+        predicted_label, confidence = serving_utils.predict_ai_platform(img)
+    elif model == "tf-lite":
+        predicted_label, confidence = serving_utils.predict_lite_model(img)
+    else:
+        raise Exception("Invalid model type specified.")
 
     response = {
         "uploadedImageUrl": image_url,
-        "gradCamImageUrl": grad_cam_url,
-        "predictedLabel": prediction['prediction'],
-        "assignedLabel": prediction['prediction'],
-        "predictionConfidence": prediction['confidence'],
+        "gradCamImageUrl": image_url,
+        "predictedLabel": predicted_label,
+        "assignedLabel": predicted_label,
+        "predictionConfidence": confidence,
         "filename": file.filename,
-        "isConfirmed": str(prediction['confidence'] >= CONFIDENCE_THRESHOLD).lower()
+        "isConfirmed": str(confidence >= CONFIDENCE_THRESHOLD).lower()
     }
+
     return response
 
 

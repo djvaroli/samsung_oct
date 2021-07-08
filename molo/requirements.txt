@@ -14,7 +14,9 @@ flatbuffers==1.12
 fpdf==1.7.2
 gast==0.3.3
 google-api-core==1.26.3
+google-api-python-client==2.12.0
 google-auth==1.30.0
+google-auth-httplib2==0.1.0
 google-auth-oauthlib==0.4.4
 google-cloud-core==1.6.0
 google-cloud-storage==1.38.0

@@ -1,9 +1,8 @@
 import os
-import tempfile
 from pathlib import Path
+import time
 
 from dotenv import load_dotenv
-import cv2
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()  # load the env vars before further imports
@@ -35,7 +34,10 @@ async def home():
 
 
 @app.post('/predict')
-async def predict_endpoint(file: UploadFile = File(...)):
+async def predict_endpoint(
+        file: UploadFile = File(...),
+        model: str = "tf-lite"
+):
     """
     :return:
     """
@@ -50,29 +52,28 @@ async def predict_endpoint(file: UploadFile = File(...)):
 
     # process the image to be in the right format and get model predictions, as well as the GradCam output
     img = image_utils.bytes_to_numpy_array(blob.download_as_bytes())
-    img = image_utils.prepare_image_for_prediction(img, reshape_size=(224, 224))
+    img = image_utils.prepare_image_for_prediction(img, reshape_size=(80, 80))
 
-    # get the predicted label and the GradCam heatmap
-    prediction, grad_cam_array = serving_utils.get_output_and_grad_cam_map(img)
-
-    # save the generated GradCam heatmap and generate a signed url to display on the frontend
-    _, gcs_file = tempfile.mkstemp('.png')
-    cv2.imwrite(gcs_file, grad_cam_array)
-    grad_cam_filepath = UPLOADED_IMAGES_GCS_PATH / f"GC-{file.filename}"
-    grad_cam_blob = gcs_utils.upload_to_gcs_from_filename(
-        gcs_file, gcs_bucket, str(grad_cam_filepath), return_blob=True
-    )
-    grad_cam_url = grad_cam_blob.media_link
+    if model == "ai-platform":
+        s = time.time()
+        predicted_label, confidence = serving_utils.predict_ai_platform(img)
+    elif model == "tf-lite":
+        s = time.time()
+        predicted_label, confidence = serving_utils.predict_lite_model(img)
+    else:
+        raise Exception("Invalid model type specified.")
 
     response = {
         "uploadedImageUrl": image_url,
-        "gradCamImageUrl": grad_cam_url,
-        "predictedLabel": prediction['prediction'],
-        "assignedLabel": prediction['prediction'],
-        "predictionConfidence": prediction['confidence'],
+        "gradCamImageUrl": image_url,
+        "predictedLabel": predicted_label,
+        "assignedLabel": predicted_label,
+        "predictionConfidence": round(confidence, 4),
         "filename": file.filename,
-        "isConfirmed": str(prediction['confidence'] >= CONFIDENCE_THRESHOLD).lower()
+        "isConfirmed": str(confidence >= CONFIDENCE_THRESHOLD).lower(),
+        "inferenceTime": round(time.time() - s, 4)
     }
+
     return response
 
 
@@ -86,6 +87,7 @@ async def generate_pdf_report_endpoint(
         item.pop('gradCamImageUrl', None)
         item.pop('predictedLabel', None)
         item.pop('isConfirmed', None)
+        item.pop('inferenceTime', None)
         item['assigned label'] = item.pop('assignedLabel', "Null")
         item['prediction confidence'] = item.pop('predictionConfidence', 0.0)
 

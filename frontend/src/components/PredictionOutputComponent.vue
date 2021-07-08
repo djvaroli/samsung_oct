@@ -42,10 +42,10 @@
               <div class="select-alternate-class-buttons">
                 <b-button
                     class="is-primary flex-item"
-                    v-bind:class="{'is-outlined' : item.assignedLabel !== 'Normal'}"
-                    @click="() => reassignLabel(i, 'Normal')"
+                    v-bind:class="{'is-outlined' : item.assignedLabel !== 'NORMAL'}"
+                    @click="() => reassignLabel(i, 'NORMAL')"
                 >
-                  Normal
+                  NORMAL
                 </b-button>
                 <b-button
                     class="is-primary flex-item"

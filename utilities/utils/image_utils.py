@@ -83,7 +83,6 @@ def prepare_image_for_prediction(
     :return:
     """
     img = resize_image(img_array, reshape_size)
-    img = normalize_image(img)
     img = make_image_into_batch(img)
     img_copy = img.copy()
     img = preprocess_input(img_copy)

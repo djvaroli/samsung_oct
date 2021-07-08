@@ -38,6 +38,13 @@
     <b-button class="is-danger h-margin-5" @click="clearUploadsAndResults" :disabled="loading">Clear</b-button>
     <br>
     <br>
+    <b-field>
+      <b-switch :value="useTFLite"
+                type="is-info">
+        Use TF Lite
+      </b-switch>
+    </b-field>
+    <br>
     <b-progress v-if="loading" type="is-info" size="is-small"></b-progress>
     <div class="is-danger"> {{ uploadStatusText }}</div>
   </section>
@@ -51,7 +58,8 @@ export default {
       dropFiles: [],
       loading: false,
       numPredictionsQueued: 0,
-      numPredictionsCompleted: 0
+      numPredictionsCompleted: 0,
+      useTFLite: true
     }
   },
   methods: {

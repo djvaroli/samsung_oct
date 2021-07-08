@@ -11,7 +11,8 @@ from tensorflow_serving.apis.model_pb2 import ModelSpec
 from tensorflow import make_tensor_proto
 from google.protobuf.json_format import MessageToJson
 
-from ai_platform_utils import predict_json
+from utils.ai_platform_utils import predict_json
+
 
 MESSAGE_OPTIONS = [('grpc.max_message_length', 200 * 1024 * 1024),
                    ('grpc.max_receive_message_length', 200 * 1024 * 1024)]

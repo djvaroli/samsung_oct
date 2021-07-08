@@ -1,9 +1,8 @@
 import os
-import tempfile
 from pathlib import Path
+import time
 
 from dotenv import load_dotenv
-import cv2
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()  # load the env vars before further imports
@@ -37,7 +36,7 @@ async def home():
 @app.post('/predict')
 async def predict_endpoint(
         file: UploadFile = File(...),
-        model: str = "ai-platform"
+        model: str = "tf-lite"
 ):
     """
     :return:
@@ -56,8 +55,10 @@ async def predict_endpoint(
     img = image_utils.prepare_image_for_prediction(img, reshape_size=(224, 224))
 
     if model == "ai-platform":
+        s = time.time()
         predicted_label, confidence = serving_utils.predict_ai_platform(img)
     elif model == "tf-lite":
+        s = time.time()
         predicted_label, confidence = serving_utils.predict_lite_model(img)
     else:
         raise Exception("Invalid model type specified.")
@@ -69,7 +70,8 @@ async def predict_endpoint(
         "assignedLabel": predicted_label,
         "predictionConfidence": confidence,
         "filename": file.filename,
-        "isConfirmed": str(confidence >= CONFIDENCE_THRESHOLD).lower()
+        "isConfirmed": str(confidence >= CONFIDENCE_THRESHOLD).lower(),
+        "inferenceTime": round(time.time() - s, 4)
     }
 
     return response

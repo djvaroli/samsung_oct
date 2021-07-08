@@ -39,8 +39,8 @@
     <br>
     <br>
     <b-field>
-      <b-switch :value="useTFLite"
-                type="is-info">
+      <b-switch v-model="useTFLite"
+                type="is-success">
         Use TF Lite
       </b-switch>
     </b-field>
@@ -73,7 +73,12 @@ export default {
       // loop over every file and dispatch request
       for (let i = 0; i < this.dropFiles.length; i++) {
         let formData = new FormData();
+        let model;
+        if (this.useTFLite === true) model = 'tf-lite'
+        else model = "ai-platform"
+
         formData.append('file', this.dropFiles[i]);
+        formData.append('model', model);
 
         // for display to user
         this.loading = true;
@@ -90,6 +95,8 @@ export default {
         )
         .then( (response) => {
           this.$emit("prediction", response.data);
+          console.log(response.data.inferenceTime);
+          console.log(model);
         })
         .catch( () => {
           this.$buefy.toast.open({

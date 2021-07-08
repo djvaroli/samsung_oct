@@ -52,7 +52,7 @@ async def predict_endpoint(
 
     # process the image to be in the right format and get model predictions, as well as the GradCam output
     img = image_utils.bytes_to_numpy_array(blob.download_as_bytes())
-    img = image_utils.prepare_image_for_prediction(img, reshape_size=(224, 224))
+    img = image_utils.prepare_image_for_prediction(img, reshape_size=(80, 80))
 
     if model == "ai-platform":
         s = time.time()
@@ -68,7 +68,7 @@ async def predict_endpoint(
         "gradCamImageUrl": image_url,
         "predictedLabel": predicted_label,
         "assignedLabel": predicted_label,
-        "predictionConfidence": confidence,
+        "predictionConfidence": round(confidence, 4),
         "filename": file.filename,
         "isConfirmed": str(confidence >= CONFIDENCE_THRESHOLD).lower(),
         "inferenceTime": round(time.time() - s, 4)
@@ -87,6 +87,7 @@ async def generate_pdf_report_endpoint(
         item.pop('gradCamImageUrl', None)
         item.pop('predictedLabel', None)
         item.pop('isConfirmed', None)
+        item.pop('inferenceTime', None)
         item['assigned label'] = item.pop('assignedLabel', "Null")
         item['prediction confidence'] = item.pop('predictionConfidence', 0.0)
 

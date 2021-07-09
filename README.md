@@ -5,9 +5,9 @@
 
 
 ## About
-In this repo you will find the source code, along with EDA notebooks and some (but not all) models used to create the `Molo` application for detecting ocular myopathies from OCT scans.
+In this repo you will find the source code, along with EDA notebooks and some (but not yet all) models used to create the `Molo` application for detecting ocular myopathies from OCT scans.
 
-Authors: Kevin De Jesus, Janhavi Giri and Daniel Varoli
+Authors: Janhavi Giri and Daniel Varoli
 
 ## Overview
 The full app is split into 2 services:

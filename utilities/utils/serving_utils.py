@@ -1,3 +1,8 @@
+"""
+Functions that interface with the TF Serving service go here
+"""
+
+
 import grpc
 import os
 import simplejson as json
@@ -13,7 +18,6 @@ from google.protobuf.json_format import MessageToJson
 TF_SERVING_MODEL_URI = os.environ['MODEL_URI']
 MESSAGE_OPTIONS = [('grpc.max_message_length', 200 * 1024 * 1024),
                    ('grpc.max_receive_message_length', 200 * 1024 * 1024)]
-
 
 
 TF_LITE_MODEL_FILE = "models/vgg-simclr.tflite"

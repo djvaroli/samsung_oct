@@ -7,7 +7,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()  # load the env vars before further imports
 
-from utils import image_utils, serving_utils, gcs_utils
+from utils import image_utils, serving_utils, gcs_utils, prediction_api
 from utils.pdf_utils import PDFReport
 from helpers.request_schemas import GeneratePDFReportSchema
 
@@ -43,9 +43,17 @@ async def predict_endpoint(
     Main prediction endpoint.
     :return:
     """
-    if model == "tf-serving":
 
-    # create google storage client and upload file to bucket
+    op_selector_map = {
+        "tf-serving": prediction_api.predict_tf_serving,
+        "tf-lite": prediction_api.predict_tf_lite,
+        "ai-platform": prediction_api.predict_ai_platform
+    }
+
+    get_prediction = op_selector_map.get(model)
+    if not get_prediction:
+        raise Exception(f"Invalid model type specified. Must be one of {' '.join(list(op_selector_map.keys()))}")
+
     # we need to store the file in the cloud so that we can display it on the frontend
     file_save_path = UPLOADED_IMAGES_GCS_PATH / file.filename
     gcs_bucket = GCS_PROJECT_BUCKET
@@ -58,14 +66,8 @@ async def predict_endpoint(
     img = image_utils.bytes_to_numpy_array(blob.download_as_bytes())
     img = image_utils.prepare_image_for_prediction(img, reshape_size=(80, 80))
 
-    if model == "ai-platform":
-        s = time.time()
-        predicted_label, confidence = serving_utils.predict_ai_platform(img)
-    elif model == "tf-lite":
-        s = time.time()
-        predicted_label, confidence = serving_utils.predict_lite_model(img)
-    else:
-        raise Exception("Invalid model type specified.")
+    s = time.time()
+    predicted_label, confidence = get_prediction(img)
 
     response = {
         "uploadedImageUrl": image_url,

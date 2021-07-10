@@ -51,8 +51,6 @@ def predict_tf_lite(
     predicted_class = CLASS_LABELS_INVERTED.get(np.argmax(scores))
     confidence = np.round(np.max(scores), 4) * 100
 
-    logging.warning(f"{scores}, {np.argmax(scores)}, {confidence}")
-
     return predicted_class, confidence
 
 

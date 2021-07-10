@@ -6,7 +6,6 @@ import logging
 
 import numpy as np
 import tensorflow as tf
-import cv2
 from tensorflow_serving.apis import predict_pb2, get_model_metadata_pb2, prediction_service_pb2_grpc
 from tensorflow_serving.apis.model_pb2 import ModelSpec
 from tensorflow import make_tensor_proto
@@ -15,6 +14,7 @@ from google.protobuf.json_format import MessageToJson
 from utils.ai_platform_utils import predict_json
 
 
+TF_SERVING_MODEL_URI = os.environ['MODEL_URI']
 MESSAGE_OPTIONS = [('grpc.max_message_length', 200 * 1024 * 1024),
                    ('grpc.max_receive_message_length', 200 * 1024 * 1024)]
 
@@ -115,15 +115,26 @@ def get_output_shape(
     return tuple([int(d['size']) for d in input_dims])
 
 
-def predict_ocular_myopathy_class(
+def predict_tf_serving(
         inputs: np.ndarray,
         model_uri: str,
         model_name: str,
         input_name: str = None,
         output_name: str = None,
         signature_name: str = "serving_default",
-        timeout: Optional[float] = 1.0
+        timeout: Optional[float] = 5.0
 ) -> Tuple[str, float]:
+    """
+    Sends a prediction request to the TF Serving service
+    :param inputs:
+    :param model_uri:
+    :param model_name:
+    :param input_name:
+    :param output_name:
+    :param signature_name:
+    :param timeout:
+    :return:
+    """
     channel = grpc.insecure_channel(model_uri, options=MESSAGE_OPTIONS)
     stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
     model_spec = ModelSpec(name=model_name, signature_name=signature_name)
@@ -151,7 +162,7 @@ def predict_ocular_myopathy_class(
     return class_prediction, probability
 
 
-def predict_lite_model(
+def predict_tf_lite(
         inputs: np.ndarray,
 ) -> Tuple[str, float]:
     """
@@ -189,7 +200,5 @@ def predict_ai_platform(
     scores = predict_json(project, region, model, inputs, version)
     predicted_class = CLASS_LABELS_INVERTED.get(np.argmax(scores))
     confidence = np.round(np.max(scores), 4) * 100
-
-    logging.warning(f"{scores}, {np.argmax(scores)}, {confidence}")
 
     return predicted_class, confidence

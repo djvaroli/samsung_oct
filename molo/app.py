@@ -19,7 +19,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-MODEL_URI = os.environ['MODEL_URI']
+
+
 GCS_PROJECT_BUCKET = os.environ.get("GCS_PROJECT_BUCKET")
 UPLOADED_IMAGES_GCS_PATH = Path(os.environ.get("UPLOADED_IMAGES_GCS_PATH"))
 CONFIDENCE_THRESHOLD = os.environ.get("CONFIDENCE_THRESHOLD", 80)
@@ -33,12 +34,13 @@ async def home():
     return {"status": "ok"}
 
 
-@app.post('/predict')
+@app.post('/predict/{model}')
 async def predict_endpoint(
-        file: UploadFile = File(...),
-        model: str = "tf-lite"
+        model: str = "tf-lite",
+        file: UploadFile = File(...)
 ):
     """
+    Main prediction endpoint.
     :return:
     """
     # create google storage client and upload file to bucket

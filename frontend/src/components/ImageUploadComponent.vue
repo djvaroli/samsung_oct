@@ -41,11 +41,18 @@
     <b-tooltip label="TF Lite models are less resource-intensive."
                type="is-primary is-light"
                position="is-right">
-      <b-field>
-        <b-switch v-model="useTFLite"
-                  type="is-success">
-          Use TF Lite
-        </b-switch>
+      <b-field label="Model">
+        <b-select
+            placeholder="Select a model"
+            v-model="model"
+            icon="brain"
+            icon-pack="fas"
+            rounded
+        >
+          <option value="tf-lite">TF Lite</option>
+          <option value="ai-platform">AI Platform</option>
+          <option value="tf-serving">TF Serving</option>
+        </b-select>
       </b-field>
     </b-tooltip>
     <br>
@@ -64,7 +71,7 @@ export default {
       loading: false,
       numPredictionsQueued: 0,
       numPredictionsCompleted: 0,
-      useTFLite: true
+      model: "tf-lite"
     }
   },
   methods: {
@@ -78,12 +85,9 @@ export default {
       // loop over every file and dispatch request
       for (let i = 0; i < this.dropFiles.length; i++) {
         let formData = new FormData();
-        let model;
-        if (this.useTFLite === true) model = 'tf-lite'
-        else model = "ai-platform"
 
         formData.append('file', this.dropFiles[i]);
-        formData.append('model', model);
+        formData.append('model', this.model);
 
         // for display to user
         this.loading = true;
@@ -101,7 +105,6 @@ export default {
         .then( (response) => {
           this.$emit("prediction", response.data);
           console.log(response.data.inferenceTime);
-          console.log(model);
         })
         .catch( () => {
           this.$buefy.toast.open({

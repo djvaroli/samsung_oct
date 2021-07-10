@@ -60,6 +60,13 @@ def get_input_name(
         model_name: str,
         timeout: float = 2.0
 ):
+    """
+    Returns the name of a model in Tensorflow Serving
+    :param model_uri:
+    :param model_name:
+    :param timeout:
+    :return:
+    """
     model_metadata = get_model_metadata(model_uri, model_name, timeout=timeout)
     signature_def = model_metadata['metadata']['signature_def']['signatureDef']
     inputs = signature_def['serving_default']['inputs']
@@ -74,6 +81,15 @@ def get_input_shape(
         signature_name: str = "serving_default",
         timeout: float = 2.0
 ):
+    """
+    Returns the input shape of a model in Tensorflow Serving
+    :param model_uri:
+    :param model_name:
+    :param input_name:
+    :param signature_name:
+    :param timeout:
+    :return:
+    """
     model_metadata = get_model_metadata(model_uri, model_name, signature_name, timeout)
     if input_name is None:
         input_name = get_input_name(model_uri, model_name, timeout)
@@ -89,7 +105,14 @@ def get_output_name(
         model_uri: str,
         model_name: str,
         timeout: float = 2.0
-):
+) -> str:
+    """
+    Returns the name of the output of a model stored in the Tensorflow Serving service
+    :param model_uri:
+    :param model_name:
+    :param timeout:
+    :return:
+    """
     model_metadata = get_model_metadata(model_uri, model_name, timeout=timeout)
     signature_def = model_metadata['metadata']['signature_def']['signatureDef']
     outputs = signature_def['serving_default']['outputs']
@@ -104,6 +127,15 @@ def get_output_shape(
         signature_name: str = "serving_default",
         timeout: float = 2.0
 ):
+    """
+    Returns the output shape of a model in the Tensorflow Serving container
+    :param model_uri:
+    :param model_name:
+    :param output_name:
+    :param signature_name:
+    :param timeout:
+    :return:
+    """
     model_metadata = get_model_metadata(model_uri, model_name, signature_name, timeout)
     if output_name is None:
         output_name = get_input_name(model_uri, model_name, timeout)

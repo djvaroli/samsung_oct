@@ -43,6 +43,8 @@ async def predict_endpoint(
     Main prediction endpoint.
     :return:
     """
+    if model == "tf-serving":
+
     # create google storage client and upload file to bucket
     # we need to store the file in the cloud so that we can display it on the frontend
     file_save_path = UPLOADED_IMAGES_GCS_PATH / file.filename

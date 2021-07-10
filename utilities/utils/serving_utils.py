@@ -1,8 +1,6 @@
 import grpc
 import os
 import simplejson as json
-from typing import *
-import logging
 
 import numpy as np
 import tensorflow as tf
@@ -11,15 +9,12 @@ from tensorflow_serving.apis.model_pb2 import ModelSpec
 from tensorflow import make_tensor_proto
 from google.protobuf.json_format import MessageToJson
 
-from utils.ai_platform_utils import predict_json
-
 
 TF_SERVING_MODEL_URI = os.environ['MODEL_URI']
 MESSAGE_OPTIONS = [('grpc.max_message_length', 200 * 1024 * 1024),
                    ('grpc.max_receive_message_length', 200 * 1024 * 1024)]
 
-CLASS_LABELS = {"CNV": 0, "DME": 1, "DRUSEN": 2, "NORMAL": 3}
-CLASS_LABELS_INVERTED = {val: key for key, val in CLASS_LABELS.items()}
+
 
 TF_LITE_MODEL_FILE = "models/vgg-simclr.tflite"
 
@@ -147,26 +142,27 @@ def get_output_shape(
     return tuple([int(d['size']) for d in input_dims])
 
 
-def predict_tf_serving(
+def get_serving_prediction_scores(
         inputs: np.ndarray,
         model_uri: str,
         model_name: str,
+        signature_name: str = "serving_default",
         input_name: str = None,
         output_name: str = None,
-        signature_name: str = "serving_default",
-        timeout: Optional[float] = 5.0
-) -> Tuple[str, float]:
+        timeout: float = 5.0
+):
     """
-    Sends a prediction request to the TF Serving service
+    Returns the raw scores outputted by the specified model in TF Serving.
     :param inputs:
     :param model_uri:
     :param model_name:
+    :param signature_name:
     :param input_name:
     :param output_name:
-    :param signature_name:
     :param timeout:
     :return:
     """
+
     channel = grpc.insecure_channel(model_uri, options=MESSAGE_OPTIONS)
     stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
     model_spec = ModelSpec(name=model_name, signature_name=signature_name)
@@ -183,54 +179,9 @@ def predict_tf_serving(
     channel.close()
 
     output_shape = get_output_shape(model_uri, model_name, output_name, timeout=timeout)
-    class_scores = np.zeros(shape=output_shape)
+    scores = np.zeros(shape=output_shape)
+
     for i, score in enumerate(result.outputs[output_name].float_val):
-        class_scores[i] = score
+        scores[i] = score
 
-    most_likely_index = int(np.argmax(class_scores, axis=0))
-    class_prediction = CLASS_LABELS_INVERTED.get(most_likely_index)
-    probability = np.round(np.max(class_scores), 4) * 100
-
-    return class_prediction, probability
-
-
-def predict_tf_lite(
-        inputs: np.ndarray,
-) -> Tuple[str, float]:
-    """
-    Makes a prediction using the tensorflow lite model
-    :param inputs:
-    :return:
-    """
-    interpreter_quant.set_tensor(input_index, inputs)
-    interpreter_quant.invoke()
-    scores = interpreter_quant.get_tensor(output_index)
-    predicted_class = CLASS_LABELS_INVERTED.get(np.argmax(scores))
-    confidence = np.round(np.max(scores), 4) * 100
-
-    logging.warning(f"{scores}, {np.argmax(scores)}, {confidence}")
-
-    return predicted_class, confidence
-
-
-def predict_ai_platform(
-        inputs: np.ndarray,
-        project: str = "fourth-brain",
-        region: str = "us-central1",
-        model: str = "samsung-oct-classifier",
-        version: str = "v1"
-) -> Tuple[str, float]:
-    """
-    Sends a request to the model hosted on GCP AI Platform
-    :param inputs:
-    :param project:
-    :param region:
-    :param model:
-    :param version:
-    :return:
-    """
-    scores = predict_json(project, region, model, inputs, version)
-    predicted_class = CLASS_LABELS_INVERTED.get(np.argmax(scores))
-    confidence = np.round(np.max(scores), 4) * 100
-
-    return predicted_class, confidence
+    return scores

@@ -15,7 +15,6 @@ from tensorflow import make_tensor_proto
 from google.protobuf.json_format import MessageToJson
 
 
-TF_SERVING_MODEL_URI = os.environ['MODEL_URI']
 MESSAGE_OPTIONS = [('grpc.max_message_length', 200 * 1024 * 1024),
                    ('grpc.max_receive_message_length', 200 * 1024 * 1024)]
 

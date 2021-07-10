@@ -12,12 +12,13 @@ from utils.ai_platform_utils import predict_json
 
 CLASS_LABELS = {"CNV": 0, "DME": 1, "DRUSEN": 2, "NORMAL": 3}
 CLASS_LABELS_INVERTED = {val: key for key, val in CLASS_LABELS.items()}
+TF_SERVING_MODEL_URI = os.environ['MODEL_URI']
 
 
 def predict_tf_serving(
         inputs: np.ndarray,
-        model_uri: str,
-        model_name: str,
+        model_uri: str = TF_SERVING_MODEL_URI,
+        model_name: str = "samsung-oct-classifier",
         **kwargs
 ) -> Tuple[str, float]:
     """

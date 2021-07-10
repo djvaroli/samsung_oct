@@ -18,7 +18,7 @@ TF_SERVING_MODEL_URI = os.environ['MODEL_URI']
 def predict_tf_serving(
         inputs: np.ndarray,
         model_uri: str = TF_SERVING_MODEL_URI,
-        model_name: str = "samsung-oct-classifier",
+        model_name: str = "simclr-oct",
         **kwargs
 ) -> Tuple[str, float]:
     """

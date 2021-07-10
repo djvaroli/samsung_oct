@@ -2,6 +2,7 @@ import grpc
 import os
 import simplejson as json
 from typing import *
+import logging
 
 import numpy as np
 import tensorflow as tf
@@ -11,23 +12,21 @@ from tensorflow_serving.apis.model_pb2 import ModelSpec
 from tensorflow import make_tensor_proto
 from google.protobuf.json_format import MessageToJson
 
+from utils.ai_platform_utils import predict_json
+
+
 MESSAGE_OPTIONS = [('grpc.max_message_length', 200 * 1024 * 1024),
                    ('grpc.max_receive_message_length', 200 * 1024 * 1024)]
 
 CLASS_LABELS = {"CNV": 0, "DME": 1, "DRUSEN": 2, "NORMAL": 3}
 CLASS_LABELS_INVERTED = {val: key for key, val in CLASS_LABELS.items()}
 
+TF_LITE_MODEL_FILE = "models/vgg-simclr.tflite"
 
-# load the pretrained vgg16 model either from existing weights or download weights
-def _load_vgg16_model():
-    weights = "model_weights/vgg16_weights_tf_dim_ordering_tf_kernels.h5"
-    if not os.path.isfile(weights):
-        weights = "imagenet"
-    return tf.keras.applications.vgg16.VGG16(weights=weights, include_top=True)
-
-
-model = _load_vgg16_model()
-grad_model = tf.keras.models.Model([model.inputs], [model.get_layer("block5_conv3").output, model.output])
+interpreter_quant = tf.lite.Interpreter(model_path=str(TF_LITE_MODEL_FILE))
+interpreter_quant.allocate_tensors()
+input_index = interpreter_quant.get_input_details()[0]["index"]
+output_index = interpreter_quant.get_output_details()[0]["index"]
 
 
 def get_model_metadata(
@@ -152,42 +151,45 @@ def predict_ocular_myopathy_class(
     return class_prediction, probability
 
 
-def get_output_and_grad_cam_map(
-        img: np.ndarray,
-) -> Tuple[dict, np.ndarray]:
+def predict_lite_model(
+        inputs: np.ndarray,
+) -> Tuple[str, float]:
     """
-    Returns predictions and GradCam heatmap overlaid onto the original image
-    :param img:
+    Makes a prediction using the tensorflow lite model
+    :param inputs:
     :return:
     """
-    with tf.GradientTape() as tape:
-        conv_outputs, class_scores = grad_model(np.array(img))
-        loss = class_scores[:, len(CLASS_LABELS_INVERTED)]
+    interpreter_quant.set_tensor(input_index, inputs)
+    interpreter_quant.invoke()
+    scores = interpreter_quant.get_tensor(output_index)
+    predicted_class = CLASS_LABELS_INVERTED.get(np.argmax(scores))
+    confidence = np.round(np.max(scores), 4) * 100
 
-    output = conv_outputs[0]
-    grads = tape.gradient(loss, conv_outputs)[0]
+    logging.warning(f"{scores}, {np.argmax(scores)}, {confidence}")
 
-    guided_grads = tf.cast(output > 0, 'float32') * tf.cast(grads > 0, 'float32') * grads
-    weights = tf.reduce_mean(guided_grads, axis=(0, 1))
+    return predicted_class, confidence
 
-    cam = np.ones(output.shape[0: 2], dtype=np.float32)
 
-    for i, w in enumerate(weights):
-        cam += w * output[:, :, i]
+def predict_ai_platform(
+        inputs: np.ndarray,
+        project: str = "fourth-brain",
+        region: str = "us-central1",
+        model: str = "samsung-oct-classifier",
+        version: str = "v1"
+) -> Tuple[str, float]:
+    """
+    Sends a request to the model hosted on GCP AI Platform
+    :param inputs:
+    :param project:
+    :param region:
+    :param model:
+    :param version:
+    :return:
+    """
+    scores = predict_json(project, region, model, inputs, version)
+    predicted_class = CLASS_LABELS_INVERTED.get(np.argmax(scores))
+    confidence = np.round(np.max(scores), 4) * 100
 
-    cam = cv2.resize(cam.numpy(), (224, 224))
-    cam = np.maximum(cam, 0)
-    heatmap = (cam - cam.min()) / (cam.max() - cam.min())
+    logging.warning(f"{scores}, {np.argmax(scores)}, {confidence}")
 
-    cam = cv2.applyColorMap(np.uint8(255*heatmap), cv2.COLORMAP_JET)
-    img = np.squeeze(img, axis=0) * 255.
-    cam_image = cv2.addWeighted(cv2.cvtColor(img.astype("uint8"), cv2.COLOR_RGB2BGR), 0.6, cam, 0.4, 0)
-
-    # line immediately before is relevant for testing, ignore otherwise
-    class_scores = np.ravel(class_scores)[:len(CLASS_LABELS_INVERTED)]
-    most_likely_index = int(np.argmax(class_scores))
-    class_prediction = CLASS_LABELS_INVERTED.get(most_likely_index)
-    probability = round(np.max(class_scores) * 100, 2)
-    prediction = {"prediction": class_prediction, "confidence": probability}
-
-    return prediction, cam_image
+    return predicted_class, confidence

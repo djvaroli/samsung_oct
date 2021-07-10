@@ -8,8 +8,11 @@ from fpdf import FPDF
 from google.cloud import storage
 
 
-GCS_PROJECT_BUCKET = os.environ.get("GCS_PROJECT_BUCKET")
-PDF_REPORTS_GCS_PATH = Path(os.environ.get("PDF_REPORTS_GCS_PATH"))
+# GCS_PROJECT_BUCKET = os.environ.get("GCS_PROJECT_BUCKET")
+# PDF_REPORTS_GCS_PATH = Path(os.environ.get("PDF_REPORTS_GCS_PATH"))
+
+GCS_PROJECT_BUCKET = "fourth-brain-course-files"
+PDF_REPORTS_GCS_PATH = Path("capstone-project/pdf_reports")
 
 
 class PDFReport(FPDF):
@@ -27,13 +30,14 @@ class PDFReport(FPDF):
             format: str = "A4"
     ):
         super(PDFReport, self).__init__(orientation=orientation, unit=unit, format=format)
+        self.gcs_client = storage.Client()
 
     def set_header(
             self,
             set_logo: bool = True
     ):
         if set_logo:
-            client = storage.Client()
+            client = self.gcs_client
             bucket = client.bucket(GCS_PROJECT_BUCKET)
             blob = bucket.blob("capstone-project/public/oct_eye_logo-128x128.png")
 
@@ -104,8 +108,17 @@ class PDFReport(FPDF):
             prediction_data: List[dict],
             title: str = "OCT Prediction Summary Report.",
             upload_to_gcs: bool = True,
-            return_signed_url: bool = True
+            return_url: bool = True
     ) -> Union[None, str]:
+        """
+        Generates a pdf report with prediction data, stores in GCS
+        if specified returns the url to the object in GCS
+        :param prediction_data:
+        :param title:
+        :param upload_to_gcs:
+        :param return_url:
+        :return:
+        """
         self.add_page()
         self.set_header()
         self.set_title(title)
@@ -116,15 +129,18 @@ class PDFReport(FPDF):
         self.output(tmp_pdf)
 
         if upload_to_gcs:
-            client = storage.Client()
+            client = self.gcs_client
             bucket = client.bucket(GCS_PROJECT_BUCKET)
             date_key = dt.now().isoformat()
             report_name = f"oct_summary_report_{date_key}.pdf"
-            pdf_report_gcs_path = PDF_REPORTS_GCS_PATH / report_name
-            blob = bucket.blob(str(pdf_report_gcs_path))
+            pdf_report_gcs_path = str(PDF_REPORTS_GCS_PATH / report_name)
+            blob = bucket.blob(pdf_report_gcs_path)
             blob.upload_from_filename(tmp_pdf)
 
-            if return_signed_url:
-                signed_url = blob.generate_signed_url(expiration=604800, version='v4')
-                return signed_url
+            if return_url:
+                return f"https://storage.googleapis.com/{GCS_PROJECT_BUCKET}/{blob.name}"
+
+
+r = PDFReport()
+b = r.generate_report([{"data": "Data"}])
 

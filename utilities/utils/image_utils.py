@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
+from tensorflow.keras.applications.vgg16 import preprocess_input
 
 
 def validate_image(stream):
@@ -82,8 +83,10 @@ def prepare_image_for_prediction(
     :return:
     """
     img = resize_image(img_array, reshape_size)
-    img = normalize_image(img)
     img = make_image_into_batch(img)
+    img_copy = img.copy()
+    img = preprocess_input(img_copy)
+
     return img
 
 

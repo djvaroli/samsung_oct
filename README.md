@@ -85,7 +85,7 @@ docker-compose up --build
 You should now be able to access the `molo` service at `localhost:8000` and the frontend service at `localhost:80`. 
 To make sure things are working, navigate to `localhost:8000` and you should see a welcome message.
 
-## Set-up with Python Venv for development
+### Set-up with Python Venv for development
 Clone this repository to your local machine
 ```bash
 mkdir samsung_oct && git clone https://github.com/djvaroli/samsung_oct.git samsung_oct/
@@ -103,3 +103,18 @@ pip3 install -e utilities/ # this will install the  custom utility functions
 ```
 
 You should now be set to run/modify code in this repository. 
+
+
+## TODO
+### Upcoming tasks 
+- [ ] Refactor notebooks for model training into executable python scripts
+- [ ] Add results to repo README 
+- [ ] Re-write existing SimCLR model code
+  - [ ] Make it more robust and compatible with recent TF versions
+  - [ ] Better model structure during build to enable proper model summary visualisation 
+  - [ ] Refactor code to make it simpler to use with different SimCLR encoder bases 
+  - [ ] Implement additional logic needed for our experiments
+
+### Completed Tasks ✓
+- [x] Repo Cleanup
+- [x] Docker-compose set up with TF Serving

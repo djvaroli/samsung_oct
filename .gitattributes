@@ -1,2 +1,5 @@
 variables*.data* filter=lfs diff=lfs merge=lfs -text
 variables.data* filter=lfs diff=lfs merge=lfs -text
+
+# override code percentages in GitHub to ensure notebooks don't dominate
+*.ipynb linguist-generated
